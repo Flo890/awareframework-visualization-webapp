@@ -8,7 +8,9 @@ class TimelineContainer extends Component {
 	constructor(props){
 		super(props);
 		this.state = {datasets: []}
-		this.loadData();
+
+		this.loadData('phone_usage','value','red');
+		this.loadData('ambient_noise_plugin','double_decibels','blue');
 	}
 
 	render() {
@@ -17,13 +19,12 @@ class TimelineContainer extends Component {
 		/>
 	}
 
-	loadData(){
-		let featureName = 'fatigue_level';
+	loadData(featureName, dataKey = 'value', color = 'blue'){
 		let participantId = 1;
 		let granularity = 'hourly';
 
 		fetch(
-			`http://localhost:8080/application/endpoints/fetchdata.php?feature_name=${featureName}&participant_id=${participantId}&granularity=${granularity}`,
+			`http://localhost:8080/application/endpoints/fetchdata.php?feature_name=${featureName}&participant_id=${participantId}&granularity=${granularity}&from=1532963553&to=1533913953`,
 			{
 				method: 'GET',
 				headers: {
@@ -39,9 +40,10 @@ class TimelineContainer extends Component {
 			}
 		}).then(json => {
 			console.log(json);
-			//this.state.datasets = [{key: 'fatigue_level', displayName: 'Fatigue Level', data: json}];
-			this.setState({
-				datasets: [{key: 'fatigue_level', displayName: 'Fatigue Level', data: json}]
+
+			this.setState(prevState => {
+				prevState.datasets[featureName] = {featureName: featureName, displayName: 'Feature Name Here', data:json, dataKey: dataKey, color: color};
+				return prevState;
 			});
 		});
 

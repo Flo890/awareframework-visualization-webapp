@@ -8,12 +8,12 @@ class TimelineVis extends Component {
 	render(){
 
 		let datasets = this.props.datasets;
-		if (datasets.length == 0){
+		let keys = Object.keys(datasets);
+		if (keys.length == 0){
 			return '<p>please wait...</p>';
 		}
-		let dataset = datasets[0].data;
 
-		//let dataset = this.props.data;
+
 
 		// some sizing parameters
 		const width = 1000;
@@ -29,40 +29,44 @@ class TimelineVis extends Component {
 
 		// map data properties to axis
 		const x = data => new Date(data.timestamp);
-		const y = data => data.fatigue_avg;
-		//const yChrome = data => data['Google Chrome'];
+
+
+		let mergedData = [];
+		keys.forEach(key => {
+			mergedData = mergedData.concat(datasets[key].data);
+		});
+
 
 		// scale
 		const xScale = scaleTime({
 			range: [0, xMax],
-			domain: extent(dataset, x)
+			domain: extent(mergedData, x) // TODO use all datasets, and what does this anyway?
 		});
-		const yScale = scaleLinear({
-			range: [yMax, 0],
-			domain: [0, max(dataset, y)]
+
+
+		let linePaths = Object.values(this.props.datasets).map(dataset => {
+			const y = data =>data[dataset.dataKey];
+			let yScale = scaleLinear({
+				range: [yMax, 0],
+				domain: [0, max(dataset.data, y)]
+			});
+			return (
+				<LinePath
+					key={dataset.featureName}
+					data={dataset.data}
+					x={x}
+					y={y}
+					xScale={xScale}
+					yScale={yScale}
+					stroke={dataset.color}
+				/>
+			);
 		});
-		// const yScaleChrome = scaleLinear({
-		// 	range: [yMax, 0],
-		// 	domain: [0, max(dataset, yChrome)]
-		// });
 
 		let myChart = (
 			<svg width={width} height={height}>
 				<Group top={margin.top} left={margin.left}>
-					<LinePath
-						data={dataset}
-						x={x}
-						y={y}
-						xScale={xScale}
-						yScale={yScale}
-					/>
-					{/*<LinePath*/}
-						{/*data={dataset}*/}
-						{/*x={x}*/}
-						{/*y={yChrome}*/}
-						{/*xScale={xScale}*/}
-						{/*yScale={yScaleChrome}*/}
-					/>
+					{linePaths}
 				</Group>
 			</svg>
 		);
