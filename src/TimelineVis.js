@@ -16,8 +16,8 @@ class TimelineVis extends Component {
 
 
 		// some sizing parameters
-		const width = 1000;
-		const height = 700;
+		const width = 700;
+		const height = 500;
 		const margin = {
 			top: 60,
 			bottom: 60,
