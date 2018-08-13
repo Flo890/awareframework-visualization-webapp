@@ -10,8 +10,8 @@ class TimelineContainer extends Component {
 		this.state = {
 			userconfig: {
 				timeline: {
-					fromDate: new Date(1533877920000),
-					toDate: new Date(1533921120000)
+					fromDate: 1533877920000,
+					toDate: 1533921120000
 				}
 			}
 		}
@@ -20,7 +20,7 @@ class TimelineContainer extends Component {
 
 	onDateFromChange = date => {
 		this.setState(prevState => {
-			prevState.userconfig.timeline.fromDate = date;
+			prevState.userconfig.timeline.fromDate = date.getTime();
 			return prevState;
 		});
 		console.log(`from set to ${date}`);
@@ -28,7 +28,7 @@ class TimelineContainer extends Component {
 
 	onDateToChange = date => {
 		this.setState(prevState => {
-			prevState.userconfig.timeline.toDate = date;
+			prevState.userconfig.timeline.toDate = date.getTime();
 			return prevState;
 		});
 		console.log(`to set to ${date}`);
@@ -43,11 +43,11 @@ class TimelineContainer extends Component {
 				<div className="range_choosers">
 					<DateTimePicker
 						onChange={this.onDateFromChange}
-						value={this.state.userconfig.timeline.fromDate}
+						value={new Date(this.state.userconfig.timeline.fromDate)}
 					/>
 					<DateTimePicker
 						onChange={this.onDateToChange}
-						value={this.state.userconfig.timeline.toDate}
+						value={new Date(this.state.userconfig.timeline.toDate)}
 					/>
 				</div>
 			</div>

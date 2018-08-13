@@ -13,9 +13,8 @@ class TimelineLoader extends Component {
 	}
 
 	componentDidUpdate(prevProps, prevState){
-		console.log('TimelineLoader.componentDidUpdate()')
-		console.log(`${prevProps.userconfig.fromDate} changed to ${this.props.userconfig.fromDate}`);
-		if (prevProps.userconfig.fromDate != this.props.userconfig.fromDate){
+		console.log('TimelineLoader.componentDidUpdate()');
+		if (this.state.renderedUserconfig && JSON.stringify(this.state.renderedUserconfig) !== JSON.stringify(this.props.userconfig)){
 			console.log('and decided to reload data');
 			this.reloadData();
 		}
@@ -37,6 +36,8 @@ class TimelineLoader extends Component {
 			this.loadData('temperature', 'temperature', 'red');
 			this.loadData('ambient_noise_plugin', 'double_decibels', 'blue');
 			this.loadData('fatigue_level', 'fatigue_avg', 'green');
+			this.state.renderedUserconfig = JSON.parse(JSON.stringify(this.props.userconfig));
+
 	}
 
 
@@ -45,7 +46,7 @@ class TimelineLoader extends Component {
 		let granularity = `${this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate)}minutes`;
 
 		fetch(
-			`http://localhost:8080/application/endpoints/fetchdata.php?feature_name=${featureName}&participant_id=${participantId}&granularity=${granularity}&from=${this.props.userconfig.fromDate.getTime()/1000}&to=${this.props.userconfig.toDate.getTime()/1000}`,
+			`http://localhost:8080/application/endpoints/fetchdata.php?feature_name=${featureName}&participant_id=${participantId}&granularity=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
 			{
 				method: 'GET',
 				headers: {
@@ -84,7 +85,7 @@ class TimelineLoader extends Component {
 		let granularity = steps[0];
 		for(let i = 0; i<steps.length; i++){
 			granularity = steps[i];
-			let minutesDiff = (to.getTime() - from.getTime())/(1000*60);
+			let minutesDiff = (to - from)/(1000*60);
 			if (minutesDiff/granularity <= maxNumberDatapoints){
 				break;
 			}
