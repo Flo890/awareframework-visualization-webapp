@@ -6,6 +6,7 @@ import {extent,max} from 'd3-array';
 
 class TimelineVis extends Component {
 	render(){
+		console.log('TimelineVis.render()');
 
 		let datasets = this.props.datasets;
 		let keys = Object.keys(datasets);
