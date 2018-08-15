@@ -4,11 +4,13 @@
   "private": true,
   "dependencies": {
     "@material-ui/core": "^1.5.0",
+    "@material-ui/icons": "^2.0.2",
     "@vx/group": "0.0.170",
     "@vx/mock-data": "0.0.165",
     "@vx/scale": "0.0.165",
     "@vx/shape": "0.0.171",
     "base-64": "^0.1.0",
+    "color-hash": "^1.0.3",
     "d3-array": "^1.2.1",
     "react": "^16.4.2",
     "react-datetime-picker": "^1.4.2",

@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import TimelineVis from "./TimelineVis";
+import ColorHash from "color-hash";
 let base64 = require('base-64');
 
 class TimelineLoader extends Component {
@@ -7,7 +8,7 @@ class TimelineLoader extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			datasets: []
+			datasets: {}
 		}
 		this.reloadData();
 	}
@@ -33,11 +34,29 @@ class TimelineLoader extends Component {
 
 	reloadData(){
 		console.log('TimelineLoader.reloadData()');
-			this.loadData('temperature', 'temperature', 'red');
-			this.loadData('ambient_noise_plugin', 'double_decibels', 'blue');
-			this.loadData('fatigue_level', 'fatigue_avg', 'green');
-			this.state.renderedUserconfig = JSON.parse(JSON.stringify(this.props.userconfig));
+		let colorHash = new ColorHash();
+		this.props.selectedFeatures.forEach(selectedFeature => {
+			this.loadData(selectedFeature.key, 'value', colorHash.hex(selectedFeature.key));
+		});
+		this.state.renderedUserconfig = JSON.parse(JSON.stringify(this.props.userconfig));
 
+		// remove datasets that are not selected anymore
+		this.setState(prevState => {
+			Object.keys(prevState.datasets).forEach(featureName => {
+				let foundKey = false;
+				for(let i = 0; i<this.props.userconfig.selectedFeatures.length; i++){
+					if (this.props.userconfig.selectedFeatures[i].key == featureName) {
+						foundKey = true;
+						break;
+					}
+				}
+				if (!foundKey){
+					delete prevState.datasets[featureName];
+					console.log(`deleted key ${featureName}`);
+				}
+			});
+			return prevState;
+		});
 	}
 
 
