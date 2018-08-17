@@ -5,6 +5,7 @@
   "dependencies": {
     "@material-ui/core": "^1.5.0",
     "@material-ui/icons": "^2.0.2",
+    "@vx/axis": "0.0.171",
     "@vx/group": "0.0.170",
     "@vx/mock-data": "0.0.165",
     "@vx/scale": "0.0.165",

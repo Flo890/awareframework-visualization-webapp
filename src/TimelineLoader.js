@@ -36,7 +36,7 @@ class TimelineLoader extends Component {
 		console.log('TimelineLoader.reloadData()');
 		let colorHash = new ColorHash();
 		this.props.selectedFeatures.forEach(selectedFeature => {
-			this.loadData(selectedFeature.key, 'value', colorHash.hex(selectedFeature.key));
+			this.loadData(selectedFeature.key, 'value', colorHash.hex(selectedFeature.key), selectedFeature.display_name);
 		});
 		this.state.renderedUserconfig = JSON.parse(JSON.stringify(this.props.userconfig));
 
@@ -60,8 +60,8 @@ class TimelineLoader extends Component {
 	}
 
 
-	loadData(featureName, dataKey = 'value', color = 'blue'){
-		let participantId = 1;
+	loadData(featureName, dataKey = 'value', color = 'blue', displayName){
+		let participantId = 2;
 		let granularity = `${this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate)}minutes`;
 
 		fetch(
@@ -84,7 +84,7 @@ class TimelineLoader extends Component {
 			console.log(json);
 
 			this.setState(prevState => {
-				prevState.datasets[featureName] = {featureName: featureName, displayName: 'Feature Name Here', data:json, dataKey: dataKey, color: color};
+				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, data:json, dataKey: dataKey, color: color};
 				return prevState;
 			});
 		});

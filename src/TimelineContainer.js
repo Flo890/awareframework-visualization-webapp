@@ -15,8 +15,8 @@ class TimelineContainer extends Component {
 		this.state = {
 			userconfig: {
 				timeline: {
-					fromDate: 1533877920000,
-					toDate: 1533921120000,
+					fromDate: 1533041083731,//1533877920000,
+					toDate: 1533101406924,//1533921120000,
 					selectedFeatures: [
 						{key:"temperature",display_name:"outside temperature"},
 						{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
@@ -30,7 +30,7 @@ class TimelineContainer extends Component {
 	}
 
 	loadAvailableFeatures(){
-		let participantId = 1; // TODO
+		let participantId = 2; // TODO
 		fetch(
 			`http://localhost:8080/application/endpoints/getavailablefeatures.php?&participant_id=${participantId}`,
 			{
