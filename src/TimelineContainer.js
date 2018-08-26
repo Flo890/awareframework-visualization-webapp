@@ -15,8 +15,8 @@ class TimelineContainer extends Component {
 		this.state = {
 			userconfig: {
 				timeline: {
-					fromDate: 1533041083731,//1533877920000,
-					toDate: 1533101406924,//1533921120000,
+					fromDate: 1535046919131,//1533877920000,
+					toDate: 1535187482902,//1533921120000,
 					selectedFeatures: [
 						{key:"temperature",display_name:"outside temperature"},
 						{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
@@ -24,19 +24,19 @@ class TimelineContainer extends Component {
 					]
 				}
 			},
-			availableFeatures: [] // loaded immediately from backend
+			availableFeatures: [], // loaded immediately from backend
+			participantId: 1
 		}
 		this.loadAvailableFeatures();
 	}
 
 	loadAvailableFeatures(){
-		let participantId = 2; // TODO
 		fetch(
-			`http://localhost:8080/application/endpoints/getavailablefeatures.php?&participant_id=${participantId}`,
+			`http://localhost:3333/features/getallavailables?&participant_id=${this.state.participantId}`,
 			{
 				method: 'GET',
 				headers: {
-					'Authorization': 'Basic ' + base64.encode(participantId + ":" + 'password') // TODO
+					'Authorization': 'Basic ' + base64.encode(this.state.participantId + ":" + 'password') // TODO
 				}
 			}
 		).then(response => {
@@ -80,6 +80,7 @@ class TimelineContainer extends Component {
 				<TimelineLoader
 					userconfig={this.state.userconfig.timeline}
 					selectedFeatures={this.state.userconfig.timeline.selectedFeatures}
+					participantId={this.state.participantId}
 					/>
 				<div className="range_choosers">
 					<DateTimePicker

@@ -61,15 +61,14 @@ class TimelineLoader extends Component {
 
 
 	loadData(featureName, dataKey = 'value', color = 'blue', displayName){
-		let participantId = 2;
-		let granularity = `${this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate)}minutes`;
+		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate);
 
 		fetch(
-			`http://localhost:8080/application/endpoints/fetchdata.php?feature_name=${featureName}&participant_id=${participantId}&granularity=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
+			`http://localhost:3333/features/getone?feature_name=${featureName}&participant_id=${this.props.participantId}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
 			{
 				method: 'GET',
 				headers: {
-					'Authorization': 'Basic ' + base64.encode(participantId + ":" + 'password') // TODO
+					'Authorization': 'Basic ' + base64.encode(this.props.participantId + ":" + 'password') // TODO
 				}
 			}
 		).then(response => {
@@ -87,7 +86,9 @@ class TimelineLoader extends Component {
 				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, data:json, dataKey: dataKey, color: color};
 				return prevState;
 			});
-		});
+		}).catch(error => {
+			console.error(`could not parse response json for feature ${featureName}`,error);
+		})
 	}
 
 	/**
