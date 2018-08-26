@@ -14,10 +14,11 @@ class TimelineLoader extends Component {
 	}
 
 	componentDidUpdate(prevProps, prevState){
+		// the given prev.. parameters are not the previous ones, that are the new ones!
 		console.log('TimelineLoader.componentDidUpdate()');
 		if (this.state.renderedUserconfig && JSON.stringify(this.state.renderedUserconfig) !== JSON.stringify(this.props.userconfig)){
 			console.log('and decided to reload data');
-			this.reloadData();
+			this.reloadData(this.props.userconfig.fromDate != this.state.renderedUserconfig.fromDate || this.props.userconfig.toDate != this.state.renderedUserconfig.toDate); // reload all if from or to date has changed
 		}
 	}
 
@@ -32,10 +33,12 @@ class TimelineLoader extends Component {
 
 	}
 
-	reloadData(){
+	reloadData(reloadAll = true){
 		console.log('TimelineLoader.reloadData()');
 		let colorHash = new ColorHash();
-		this.props.selectedFeatures.forEach(selectedFeature => {
+		this.props.selectedFeatures
+			.filter(selectedFeature => {if(!reloadAll && this.state.datasets[selectedFeature.key]){ return false} else {return true}}) // only load those that don't exist yet
+			.forEach(selectedFeature => {
 			this.loadData(selectedFeature.key, 'value', colorHash.hex(selectedFeature.key), selectedFeature.display_name);
 		});
 		this.state.renderedUserconfig = JSON.parse(JSON.stringify(this.props.userconfig));
