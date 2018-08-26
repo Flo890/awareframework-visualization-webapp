@@ -14,6 +14,7 @@
     "base-64": "^0.1.0",
     "color-hash": "^1.0.3",
     "d3-array": "^1.2.1",
+    "moment": "^2.22.2",
     "react": "^16.4.2",
     "react-datetime-picker": "^1.4.2",
     "react-dom": "^16.4.2",

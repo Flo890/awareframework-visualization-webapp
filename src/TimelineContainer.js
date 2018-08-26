@@ -4,6 +4,7 @@ import DateTimePicker from 'react-datetime-picker'
 import Chip from '@material-ui/core/Chip'
 import AddIcon from '@material-ui/icons/Add'
 import ColorHash from "color-hash";
+import TimelineNotes from "./TimelineNotes";
 let base64 = require('base-64');
 
 
@@ -126,6 +127,11 @@ class TimelineContainer extends Component {
 						})
 					}
 				</div>
+				<TimelineNotes
+					participantId={this.state.participantId}
+					timelineConfig={this.state.userconfig.timeline}
+					showTimelineForConfigFunction={this.showTimelineForConfig.bind(this)}
+				/>
 			</div>
 		);
 	}
@@ -156,6 +162,13 @@ class TimelineContainer extends Component {
 
 		this.realThis.setState(prevState => {
 			prevState.userconfig.timeline.selectedFeatures.push(selectedFeatureObj);
+			return prevState;
+		});
+	}
+
+	showTimelineForConfig(timelineConfig){
+		this.setState(prevState => {
+			prevState.userconfig.timeline = timelineConfig;
 			return prevState;
 		});
 	}
