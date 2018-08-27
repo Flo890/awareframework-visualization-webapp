@@ -1,8 +1,12 @@
 import React, { Component } from 'react';
+import './TimelineContainer.css';
 import TimelineLoader from './TimelineLoader';
 import DateTimePicker from 'react-datetime-picker'
 import Chip from '@material-ui/core/Chip'
 import AddIcon from '@material-ui/icons/Add'
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
+import Typography from '@material-ui/core/Typography'
 import ColorHash from "color-hash";
 import TimelineNotes from "./TimelineNotes";
 let base64 = require('base-64');
@@ -25,19 +29,18 @@ class TimelineContainer extends Component {
 					]
 				}
 			},
-			availableFeatures: [], // loaded immediately from backend
-			participantId: 1
+			availableFeatures: [] // loaded immediately from backend
 		}
 		this.loadAvailableFeatures();
 	}
 
 	loadAvailableFeatures(){
 		fetch(
-			`http://localhost:3333/features/getallavailables?&participant_id=${this.state.participantId}`,
+			`http://localhost:3333/features/getallavailables?&participant_id=${this.props.participantId}`,
 			{
 				method: 'GET',
 				headers: {
-					'Authorization': 'Basic ' + base64.encode(this.state.participantId + ":" + 'password') // TODO
+					'Authorization': 'Basic ' + base64.encode(this.props.participantId + ":" + 'password') // TODO
 				}
 			}
 		).then(response => {
@@ -78,60 +81,65 @@ class TimelineContainer extends Component {
 		let colorHash = new ColorHash();
 		return (
 			<div>
-				<TimelineLoader
-					userconfig={this.state.userconfig.timeline}
-					selectedFeatures={this.state.userconfig.timeline.selectedFeatures}
-					participantId={this.state.participantId}
-					/>
-				<div className="range_choosers">
-					<DateTimePicker
-						onChange={this.onDateFromChange}
-						value={new Date(this.state.userconfig.timeline.fromDate)}
-					/>
-					<DateTimePicker
-						onChange={this.onDateToChange}
-						value={new Date(this.state.userconfig.timeline.toDate)}
-					/>
-				</div>
-				<div className="feature_chooser">
-					{
-						this.state.availableFeatures.map(feature => {
-							let isSelected = false;
-							for(let i=0; i<this.state.userconfig.timeline.selectedFeatures.length; i++){
-								if (this.state.userconfig.timeline.selectedFeatures[i].key == feature.key){
-									isSelected = true;
-									break;
-								}
-							}
-							if (isSelected){
-								// chip for selected feature
-								return (
-									<Chip
-										label={feature.display_name}
-										onDelete={this.handleFeatureUnselect.bind({key:feature.key,realThis: this})}
-										style={{background:colorHash.hex(feature.key)}}
-									/>
-								)
-							} else {
-								// chip for not selected feature
-								return (
-									<Chip
-										label={feature.display_name}
-										clickable
-										onDelete={this.handleFeatureSelect.bind({key:feature.key,realThis: this})}
-										deleteIcon={<AddIcon />}
-									/>
-								)
-							}
+				<Card className="timeline_card">
+					<CardContent>
+						<Typography variant="headline" component="h2">Timeline</Typography>
+						<TimelineLoader
+							userconfig={this.state.userconfig.timeline}
+							selectedFeatures={this.state.userconfig.timeline.selectedFeatures}
+							participantId={this.props.participantId}
+						/>
+						<div className="range_choosers">
+							<DateTimePicker
+								onChange={this.onDateFromChange}
+								value={new Date(this.state.userconfig.timeline.fromDate)}
+							/>
+							<DateTimePicker
+								onChange={this.onDateToChange}
+								value={new Date(this.state.userconfig.timeline.toDate)}
+							/>
+						</div>
+						<div className="feature_chooser">
+							{
+								this.state.availableFeatures.map(feature => {
+									let isSelected = false;
+									for(let i=0; i<this.state.userconfig.timeline.selectedFeatures.length; i++){
+										if (this.state.userconfig.timeline.selectedFeatures[i].key == feature.key){
+											isSelected = true;
+											break;
+										}
+									}
+									if (isSelected){
+										// chip for selected feature
+										return (
+											<Chip
+												label={feature.display_name}
+												onDelete={this.handleFeatureUnselect.bind({key:feature.key,realThis: this})}
+												style={{background:colorHash.hex(feature.key)}}
+											/>
+										)
+									} else {
+										// chip for not selected feature
+										return (
+											<Chip
+												label={feature.display_name}
+												clickable
+												onDelete={this.handleFeatureSelect.bind({key:feature.key,realThis: this})}
+												deleteIcon={<AddIcon />}
+											/>
+										)
+									}
 
-						})
-					}
-				</div>
-				<TimelineNotes
-					participantId={this.state.participantId}
-					timelineConfig={this.state.userconfig.timeline}
-					showTimelineForConfigFunction={this.showTimelineForConfig.bind(this)}
-				/>
+								})
+							}
+						</div>
+						<TimelineNotes
+							participantId={this.props.participantId}
+							timelineConfig={this.state.userconfig.timeline}
+							showTimelineForConfigFunction={this.showTimelineForConfig.bind(this)}
+						/>
+					</CardContent>
+				</Card>
 			</div>
 		);
 	}

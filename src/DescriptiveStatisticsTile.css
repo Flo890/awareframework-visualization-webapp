@@ -1,0 +1,30 @@
+.descr_stat_tile_card {
+    margin: 10px;
+    width:40%;
+    float:left;
+}
+.text_value{
+    font-size: 4em;
+    margin:0;
+}
+.text_unit{
+
+}
+.value_container{
+    box-sizing: border-box;
+    float:left;
+    width:50%;
+    padding:20px;
+}
+.label_container{
+    box-sizing: border-box;
+    float:right;
+    width: 50%;
+    padding:20px;
+}
+.label{
+    margin:0;
+}
+.text_time{
+    clear:both;
+}
