@@ -1,3 +1,21 @@
 .descriptive_statistics_card{
 
 }
+form{
+
+}
+.timespan_buttons {
+    clear: both;
+}
+.timespan_buttons Button {
+    float: left;
+}
+.dropdown_accm, .dropdown_feature{
+    width: 50%;
+    float:left;
+    padding:10px !important;
+    box-sizing: border-box !important;
+}
+.add_tile_button{
+    margin:20px;
+}

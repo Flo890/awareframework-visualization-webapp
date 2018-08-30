@@ -13,7 +13,22 @@ class DescriptiveStatisticsLoader extends Component {
 		this.loadData();
 	}
 
+	componentDidUpdate(prevProps, prevState){
+		this.loadData();
+	}
+
 	loadData(){
+		console.log('tileconfig');
+		console.log(this.props.descrStatConfigs);
+		if (this.state.renderedTileconfig == JSON.stringify(this.props.descrStatConfigs)){
+			console.log('reloading tiles aborted');
+			return;
+		}
+		console.log('tileconfig changed, will reload');
+		this.state.renderedTileconfig = JSON.stringify(this.props.descrStatConfigs);
+
+
+		console.log(`(re)loading ${this.props.descrStatConfigs} tiles`);
 		fetch(`http://localhost:3333/descriptivestatistics?participant_id=${this.props.participantId}`, {
 			method: 'POST',
 			body: JSON.stringify({configs: this.props.descrStatConfigs}),
@@ -37,10 +52,12 @@ class DescriptiveStatisticsLoader extends Component {
 				return <DescriptiveStatisticsTile
 					key={`descr-tile-${aDescrStatTile.config.accumulator.function}-${aDescrStatTile.featureName}-${aDescrStatTile.config.from}-${aDescrStatTile.config.to}`}
 					descrStatTile={aDescrStatTile}
+					handleDeleteTile={this.props.handleDeleteTile}
 				/>
 			})}
 			</div>
 		);
 	}
+
 }
 export default DescriptiveStatisticsLoader;

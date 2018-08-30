@@ -9,9 +9,6 @@ import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import ColorHash from "color-hash";
 import TimelineNotes from "./TimelineNotes";
-let base64 = require('base-64');
-
-
 
 class TimelineContainer extends Component {
 
@@ -28,38 +25,9 @@ class TimelineContainer extends Component {
 						{key:"fatigue_level",display_name:"fatigue level"}
 					]
 				}
-			},
-			availableFeatures: [] // loaded immediately from backend
+			}
 		}
-		this.loadAvailableFeatures();
 	}
-
-	loadAvailableFeatures(){
-		fetch(
-			`http://localhost:3333/features/getallavailables?&participant_id=${this.props.participantId}`,
-			{
-				method: 'GET',
-				headers: {
-					'Authorization': 'Basic ' + base64.encode(this.props.participantId + ":" + 'password') // TODO
-				}
-			}
-		).then(response => {
-			if (response.ok) {
-				console.log(`request for available features is ok`);
-				return response.json()
-			} else if (response.status == 401){
-				// login
-				alert('password wrong!'); // TODO
-			}
-		}).then(json => {
-			console.log(json);
-
-			this.setState({
-				availableFeatures: json
-			});
-		});
-	}
-
 
 	onDateFromChange = date => {
 		this.setState(prevState => {
@@ -101,7 +69,7 @@ class TimelineContainer extends Component {
 						</div>
 						<div className="feature_chooser">
 							{
-								this.state.availableFeatures.map(feature => {
+								this.props.availableFeatures.map(feature => {
 									let isSelected = false;
 									for(let i=0; i<this.state.userconfig.timeline.selectedFeatures.length; i++){
 										if (this.state.userconfig.timeline.selectedFeatures[i].key == feature.key){
@@ -161,9 +129,9 @@ class TimelineContainer extends Component {
 		console.log(`selected ${this.key}`);
 		// get full feature object
 		let selectedFeatureObj;
-		for(let i = 0; i<this.realThis.state.availableFeatures.length; i++){
-			if(this.realThis.state.availableFeatures[i].key == this.key){
-				selectedFeatureObj = this.realThis.state.availableFeatures[i];
+		for(let i = 0; i<this.realThis.props.availableFeatures.length; i++){
+			if(this.realThis.props.availableFeatures[i].key == this.key){
+				selectedFeatureObj = this.realThis.props.availableFeatures[i];
 				break;
 			}
 		}
