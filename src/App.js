@@ -16,6 +16,7 @@ class App extends Component {
 
 	state = {
 		participantId: 1,
+		participantEmail: 'Florian.Bemmann@campus.lmu.de',
 		availableFeatures: []
 	}
 
@@ -58,8 +59,8 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload. Lol
         </p>
-          <TimelineContainer participantId={this.state.participantId} availableFeatures={this.state.availableFeatures}/>
-          <DescriptiveStatisticsContainer participantId={this.state.participantId} availableFeatures={this.state.availableFeatures}/>
+          <TimelineContainer participantId={this.state.participantId} participantEmail={this.state.participantEmail} availableFeatures={this.state.availableFeatures}/>
+          <DescriptiveStatisticsContainer participantId={this.state.participantId} participantEmail={this.state.participantEmail} availableFeatures={this.state.availableFeatures}/>
       </div>
     );
   }

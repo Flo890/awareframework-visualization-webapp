@@ -29,7 +29,7 @@ class DescriptiveStatisticsLoader extends Component {
 
 
 		console.log(`(re)loading ${this.props.descrStatConfigs} tiles`);
-		fetch(`http://localhost:3333/descriptivestatistics?participant_id=${this.props.participantId}`, {
+		fetch(`http://localhost:3333/descriptivestatistics?participant_id=${this.props.participantId}&participant_email=${this.props.participantEmail}`, {
 			method: 'POST',
 			body: JSON.stringify({configs: this.props.descrStatConfigs}),
 			headers: {

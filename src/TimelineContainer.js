@@ -56,6 +56,7 @@ class TimelineContainer extends Component {
 							userconfig={this.state.userconfig.timeline}
 							selectedFeatures={this.state.userconfig.timeline.selectedFeatures}
 							participantId={this.props.participantId}
+							participantEmail={this.props.participantEmail}
 						/>
 						<div className="range_choosers">
 							<DateTimePicker

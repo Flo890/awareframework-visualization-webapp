@@ -67,7 +67,7 @@ class TimelineLoader extends Component {
 		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate);
 
 		fetch(
-			`http://localhost:3333/features/getone?feature_name=${featureName}&participant_id=${this.props.participantId}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
+			`http://localhost:3333/features/getone?feature_name=${featureName}&participant_id=${this.props.participantId}&participant_email=${this.props.participantEmail}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
 			{
 				method: 'GET',
 				headers: {
