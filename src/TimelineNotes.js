@@ -17,7 +17,7 @@ class TimelineNotes extends Component {
 	}
 
 	loadNotes(){
-		fetch(`http://localhost:3333/notes/get?participant_id=${this.props.participantId}`).then(json => {json.json().then(notes => {
+		fetch(`${require('./config.json').server}/notes/get`).then(json => {json.json().then(notes => {
 			for(let i = 0; i<notes.length; i++){
 				notes[i].timeline_config = JSON.parse(notes[i].timeline_config);
 			}
@@ -114,7 +114,7 @@ class TimelineNotes extends Component {
 			return;
 		}
 
-		fetch(`http://localhost:3333/notes/save?participant_id=${this.props.participantId}`, {
+		fetch(`${require('./config.json').server}/notes/save`, {
 			method: 'POST',
 			body: JSON.stringify({inputText: this.state.inputText, timelineConfig: this.props.timelineConfig}),
 			headers: {

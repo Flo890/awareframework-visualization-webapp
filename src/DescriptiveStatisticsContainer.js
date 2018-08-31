@@ -63,7 +63,7 @@ class DescriptiveStatisticsContainer extends Component {
 				<CardContent>
 					<Typography variant="headline" component="h2">Descriptive Statistics</Typography>
 				</CardContent>
-				<DescriptiveStatisticsLoader descrStatConfigs={this.state.descrStatConfigs} participantId={this.props.participantId} participantEmail={this.props.participantEmail} handleDeleteTile={this.handleDeleteTile.bind(this)}/>
+				<DescriptiveStatisticsLoader descrStatConfigs={this.state.descrStatConfigs} userinfo={this.props.userinfo} handleDeleteTile={this.handleDeleteTile.bind(this)}/>
 
 				<Button onClick={this.handleClickDialogOpen} className="add_tile_button">ADD</Button>
 

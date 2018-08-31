@@ -3,6 +3,7 @@ import logo from './logo.svg';
 import './App.css';
 import TimelineContainer from './TimelineContainer'
 import DescriptiveStatisticsContainer from './DescriptiveStatisticsContainer';
+import LoginView from './LoginView';
 let base64 = require('base-64');
 
 
@@ -15,27 +16,33 @@ class App extends Component {
 	}
 
 	state = {
-		participantId: 1,
-		participantEmail: 'Florian.Bemmann@campus.lmu.de',
+		userinfo: {
+			participantId: 3,
+			participantEmail: 'Florian.Bemmann@campus.lmu.de',
+			password: 'password'
+		},
+		isLoggedIn: undefined,
 		availableFeatures: []
 	}
 
 	loadAvailableFeatures(){
 		fetch(
-			`http://localhost:3333/features/getallavailables?&participant_id=${this.state.participantId}`,
+			`${require('./config.json').server}/features/getallavailables`,
 			{
-				method: 'GET',
-				headers: {
-					'Authorization': 'Basic ' + base64.encode(this.state.participantId + ":" + 'password') // TODO
-				}
+				method: 'GET'
 			}
 		).then(response => {
 			if (response.ok) {
 				console.log(`request for available features is ok`);
+				this.setState({
+					isLoggedIn: true
+				});
 				return response.json()
 			} else if (response.status == 401){
 				// login
-				alert('password wrong!'); // TODO
+				this.setState({
+					isLoggedIn: false
+				});
 			}
 		}).then(json => {
 			console.log(json);
@@ -59,8 +66,18 @@ class App extends Component {
         <p className="App-intro">
           To get started, edit <code>src/App.js</code> and save to reload. Lol
         </p>
-          <TimelineContainer participantId={this.state.participantId} participantEmail={this.state.participantEmail} availableFeatures={this.state.availableFeatures}/>
-          <DescriptiveStatisticsContainer participantId={this.state.participantId} participantEmail={this.state.participantEmail} availableFeatures={this.state.availableFeatures}/>
+		  { this.state.isLoggedIn ?
+			  (
+			  	<div>
+				  <TimelineContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
+				  <DescriptiveStatisticsContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
+				</div>
+			  ):
+				  (
+				  	<LoginView/>
+				  )
+		  }
+
       </div>
     );
   }
