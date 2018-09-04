@@ -93,8 +93,9 @@ class TimelineVis extends Component {
 					onTouchStart={data => event => this.handleLineHover(dataset.featureName)}
 					onTouchMove={data => event => this.handleLineHover(dataset.featureName)}
 					onMouseMove={data => event => this.handleLineHover(dataset.featureName)}
-					onTouchEnd={data => event => this.setState({ position: null })}
-					onMouseLeave={data => event => this.setState({ position: null })}
+					onTouchEnd={data => event => this.setState({ position: null, positionDate: null })}
+					onMouseLeave={data => event => this.setState({ position: null, positionDate: null })}
+					defined={d => {return d.value != null}}
 				/>
 			);
 			// TODO make this overlays more efficient, e.g. by moving it into a component to avoid rerendering the full graph

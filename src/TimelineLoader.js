@@ -85,12 +85,27 @@ class TimelineLoader extends Component {
 			console.log(json);
 
 			this.setState(prevState => {
+				this.fillGapsWithNull(json, granularity);
 				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, data:json, dataKey: dataKey, color: color};
 				return prevState;
 			});
 		}).catch(error => {
 			console.error(`could not parse response json for feature ${featureName}`,error);
 		})
+	}
+
+	/**
+	 * adds {timestamp:1234,value:null} values at the granularity interval. With that, a define function can be used in LinePath to show gaps at these times
+	 * @param data
+	 */
+	fillGapsWithNull(data, granularityMins){
+		const granularityMillis = granularityMins*60*1000;
+		for(let i = 0;  i<data.length-1; i++){
+			if (data[i+1].timestamp - data[i].timestamp > granularityMillis) {
+				data.splice(i+1,0,{timestamp:data[i].timestamp+granularityMillis, value: null});
+			}
+			if (i>10000) break;
+		}
 	}
 
 	/**
