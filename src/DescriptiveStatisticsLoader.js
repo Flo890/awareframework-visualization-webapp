@@ -41,7 +41,9 @@ class DescriptiveStatisticsLoader extends Component {
 				this.setState({
 					descrStatTiles: response
 				});
-			}).catch(jsonError => {console.error('parsing descr stats json failed',jsonError)});
+			}).catch(jsonError => {
+				console.error('parsing descr stats json failed',jsonError);
+			});
 		}).catch(error => {console.error('loading descr stats failed',error)});
 	}
 

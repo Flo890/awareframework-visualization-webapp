@@ -17,8 +17,8 @@ class TimelineContainer extends Component {
 		this.state = {
 			userconfig: {
 				timeline: {
-					fromDate: 1535046919131,//1533877920000,
-					toDate: 1535187482902,//1533921120000,
+					fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,//1533877920000,
+					toDate: moment.unix()*1000,//1533921120000,
 					selectedFeatures: [
 						{key:"temperature",display_name:"outside temperature"},
 						{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
