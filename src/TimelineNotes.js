@@ -4,6 +4,8 @@ import Button from '@material-ui/core/Button'
 
 import TimelineNoteCard from "./TimelineNoteCard";
 
+const config = require('./config.json');
+
 class TimelineNotes extends Component {
 
 	state = {
@@ -17,7 +19,7 @@ class TimelineNotes extends Component {
 	}
 
 	loadNotes(){
-		fetch(`${require('./config.json').server}/notes/get`).then(json => {json.json().then(notes => {
+		fetch(`${config.profiles[config.activeProfile].server}/notes/get`).then(json => {json.json().then(notes => {
 			for(let i = 0; i<notes.length; i++){
 				notes[i].timeline_config = JSON.parse(notes[i].timeline_config);
 			}
@@ -114,7 +116,7 @@ class TimelineNotes extends Component {
 			return;
 		}
 
-		fetch(`${require('./config.json').server}/notes/save`, {
+		fetch(`${config.profiles[config.activeProfile].server}/notes/save`, {
 			method: 'POST',
 			body: JSON.stringify({inputText: this.state.inputText, timelineConfig: this.props.timelineConfig}),
 			headers: {

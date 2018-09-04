@@ -3,6 +3,8 @@ import TimelineVis from "./TimelineVis";
 import ColorHash from "color-hash";
 let base64 = require('base-64');
 
+const config = require('./config.json');
+
 class TimelineLoader extends Component {
 
 	constructor(props){
@@ -67,7 +69,7 @@ class TimelineLoader extends Component {
 		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate);
 
 		fetch(
-			`${require('./config.json').server}/features/getone?feature_name=${featureName}&participant_email=${this.props.userinfo.participantEmail}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
+			`${config.profiles[config.activeProfile].server}/features/getone?feature_name=${featureName}&participant_email=${this.props.userinfo.participantEmail}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
 			{
 				method: 'GET'
 			}

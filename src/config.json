@@ -1,3 +1,12 @@
 {
-	"server": "http://localhost:3333"
+	"activeProfile": "local",
+
+	"profiles": {
+		"local": {
+			"server": "http://localhost:3333"
+		},
+		"production": {
+			"server": ""
+		}
+	}
 }

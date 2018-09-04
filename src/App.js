@@ -6,6 +6,8 @@ import DescriptiveStatisticsContainer from './DescriptiveStatisticsContainer';
 import LoginView from './LoginView';
 let base64 = require('base-64');
 
+const config = require('./config.json');
+
 
 
 class App extends Component {
@@ -27,7 +29,7 @@ class App extends Component {
 
 	loadAvailableFeatures(){
 		fetch(
-			`${require('./config.json').server}/features/getallavailables`,
+			`${config.profiles[config.activeProfile].server}/features/getallavailables`,
 			{
 				method: 'GET'
 			}

@@ -10,6 +10,8 @@ import Typography from '@material-ui/core/Typography'
 import ColorHash from "color-hash";
 import TimelineNotes from "./TimelineNotes";
 
+let moment = require('moment');
+
 class TimelineContainer extends Component {
 
 	constructor(props) {
@@ -18,7 +20,7 @@ class TimelineContainer extends Component {
 			userconfig: {
 				timeline: {
 					fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,//1533877920000,
-					toDate: moment.unix()*1000,//1533921120000,
+					toDate: moment().unix()*1000,//1533921120000,
 					selectedFeatures: [
 						{key:"temperature",display_name:"outside temperature"},
 						{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},

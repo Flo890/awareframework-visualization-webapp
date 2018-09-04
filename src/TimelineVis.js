@@ -5,9 +5,12 @@ import {scaleTime, scaleLinear} from '@vx/scale';
 import {extent,max,bisector} from 'd3-array';
 import { AxisLeft, AxisBottom } from '@vx/axis';
 
+let moment = require('moment');
+
 class TimelineVis extends Component {
 	state = {
-		position: null,
+		position: null, // position of the context line. If not null, the line will be displayed
+		positionDate: null
 	};
 	render(){
 		console.log('TimelineVis.render()');
@@ -40,6 +43,8 @@ class TimelineVis extends Component {
 		keys.forEach(key => {
 			mergedData = mergedData.concat(datasets[key].data);
 		});
+		//mergedData.sort((a,b) => {return a.timestamp < b.timestamp ? -1 : 1});
+
 
 
 		// scale
@@ -59,6 +64,23 @@ class TimelineVis extends Component {
 				domain: [0, max(dataset.data, y)]
 			});
 
+			// hovered data point x,y
+			let hoveredDataPoint = undefined;
+			if (this.state.position && this.state.positionDate) {
+				// try to get datapoint for the hovered datetime for this feature
+				let dataPoint = dataset.data.filter(aDataPoint => {
+					return this.state.positionDate.getTime() == aDataPoint.timestamp
+				})[0];
+				if (dataPoint) {
+					// if there is a point...
+					hoveredDataPoint = {
+						xPx: this.state.position.x,
+						yPx: yScale(y(dataPoint)),
+						dataObject: dataPoint
+					};
+				}
+			}
+
 			linePaths.push(
 				<LinePath
 					key={dataset.featureName}
@@ -76,17 +98,13 @@ class TimelineVis extends Component {
 				/>
 			);
 			// TODO make this overlays more efficient, e.g. by moving it into a component to avoid rerendering the full graph
-			// TODO use y functions that interpolate between the data points
-			const position = this.state.position;
-			if (this.state.position) {
-				if (dataset.data.length > position.index) {
+			if (hoveredDataPoint) {
 					linePaths.push(
-						<g key={`${dataset.featureName}-details`} transform={`translate(${position.x},${yScale(y(dataset.data[position.index]))})`}>
+						<g key={`${dataset.featureName}-details`} transform={`translate(${hoveredDataPoint.xPx},${hoveredDataPoint.yPx})`}>
 							<circle  r="4.5" fill="none" stroke="steelblue" />
-							<text x="9" dy=".35em">{y(dataset.data[position.index])}</text>
+							<text x="9" dy=".35em">{`${dataset.displayName}: ${Math.floor(hoveredDataPoint.dataObject.value*100)/100}`}</text>
 						</g>
 					);
-				}
 			}
 
 			if (this.state && this.state.yAxis == dataset.featureName){
@@ -119,11 +137,16 @@ class TimelineVis extends Component {
 					}}/>
 					{linePaths}
 					{this.state.position && (
-						<Line
-							from={{ x: this.state.position.x, y: 0 }}
-							to={{ x: this.state.position.x, y: height }}
-							strokeWidth={1}
-						/>
+							<Line
+								from={{ x: this.state.position.x, y: 0 }}
+								to={{ x: this.state.position.x, y: height }}
+								strokeWidth={1}
+							/>
+					)}
+					{this.state.position && (
+						<g key={`details-line-date`} transform={`translate(${this.state.position.x},0)`}>
+							<text x="9" dy=".35em">{moment(this.state.positionDate).format('ddd MMM Do [at] hh:mm')}</text>
+						</g>
 					)}
 					<AxisBottom
 						scale={xScale}
@@ -156,14 +179,14 @@ class TimelineVis extends Component {
 	}
 
 	handleGraphAreaHover(event, data, xSelector, xScale, margin) {
-		let eventXInSvg = event.offsetX - margin.left;
+		let eventXInSvg = event.offsetX - margin.left;  // the x value within the graph, where the user hovered
 
-			const x0 = xScale.invert(eventXInSvg);
+			const x0 = xScale.invert(eventXInSvg); // the datetime which the user hovered
 		const bisectDate = bisector(xSelector).left;
-			let index = bisectDate(data, x0, 1);
-			const d0 = data[index - 1];
-			const d1 = data[index];
-			let d = d0;
+			let index = bisectDate(data, x0, 1); // will be set to the index of the closest datapoint to the hovered point
+			const d0 = data[index - 1]; // the next datapoint left to the hovered point
+			const d1 = data[index]; // the next datapoint right to the hovered point
+			let d = d0; // is set either the left or the right, depending on which one is closer to the hovered point
 			if (d1 ){
 				if (x0 - xSelector(d0) > xSelector(d1) - x0) {
 					d = d1;
@@ -177,6 +200,7 @@ class TimelineVis extends Component {
 						index,
 						x: xScale(xSelector(d)),
 					},
+					positionDate: xSelector(d)
 				});
 			}
 

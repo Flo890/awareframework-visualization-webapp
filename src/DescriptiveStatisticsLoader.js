@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import './DescriptiveStatisticsContainer.css';
 import DescriptiveStatisticsTile from "./DescriptiveStatisticsTile";
 
+const config = require('./config.json');
+
 class DescriptiveStatisticsLoader extends Component {
 
 	state = {
@@ -29,7 +31,7 @@ class DescriptiveStatisticsLoader extends Component {
 
 
 		console.log(`(re)loading ${this.props.descrStatConfigs} tiles`);
-		fetch(`${require('./config.json').server}/descriptivestatistics?participant_email=${this.props.userinfo.participantEmail}`, {
+		fetch(`${config.profiles[config.activeProfile].server}/descriptivestatistics?participant_email=${this.props.userinfo.participantEmail}`, {
 			method: 'POST',
 			body: JSON.stringify({configs: this.props.descrStatConfigs}),
 			headers: {
