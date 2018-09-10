@@ -26,6 +26,27 @@ class DescriptiveStatisticsTile extends Component {
 			dateText  = `at ${moment.unix(this.props.descrStatTile.config.from/1000).format('MMMM Do')}`;
 		}
 
+		// show 'today', 'last week', ... if the user chose one of these
+		if (this.props.descrStatTile.config.dynamicTimerange) {
+			switch(this.props.descrStatTile.config.dynamicTimerange){
+				case 'yesterday':
+					dateText = 'Yesterday';
+					break;
+				case 'thisweek':
+					dateText = 'This Week';
+					break;
+				case 'lastweek':
+					dateText = 'Last Week';
+					break;
+				case 'today':
+					dateText = 'Today';
+					break;
+			}
+		}
+
+
+
+
 		return (
 			<Card className="descr_stat_tile_card">
 				<CardContent className="cardcontent">

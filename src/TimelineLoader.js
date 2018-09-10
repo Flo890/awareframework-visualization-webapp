@@ -115,7 +115,7 @@ class TimelineLoader extends Component {
 	 * @returns {number} date granularity in minutes (one of steps array)
 	 */
 	granularityFunction(from,to){
-		const maxNumberDatapoints = 100;
+		const maxNumberDatapoints = 20;
 		const steps = [5,10,15,30,60,60*3,60*24];
 
 		// start with 5 minutes, and check whether that yields at most 100 datapoints. If no reduce data frequency, check again, ...

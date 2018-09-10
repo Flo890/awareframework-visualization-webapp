@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './DescriptiveStatisticsContainer.css';
 import DescriptiveStatisticsTile from "./DescriptiveStatisticsTile";
 
+let moment = require('moment');
 const config = require('./config.json');
 
 class DescriptiveStatisticsLoader extends Component {
@@ -33,7 +34,29 @@ class DescriptiveStatisticsLoader extends Component {
 		console.log(`(re)loading ${this.props.descrStatConfigs} tiles`);
 		fetch(`${config.profiles[config.activeProfile].server}/descriptivestatistics?participant_email=${this.props.userinfo.participantEmail}`, {
 			method: 'POST',
-			body: JSON.stringify({configs: this.props.descrStatConfigs}),
+			body: JSON.stringify({configs: this.props.descrStatConfigs.map(config => {
+				if (config.dynamicTimerange) {
+					switch(config.dynamicTimerange){
+						case 'yesterday':
+							config.from = moment().subtract(1, 'day').startOf('day');
+							config.to = moment().subtract(1, 'day').endOf('day');
+							break;
+						case 'thisweek':
+							config.from = moment().startOf('week');
+							config.to = moment().endOf('week');
+							break;
+						case 'lastweek':
+							config.from = moment().subtract(1, 'week').startOf('week');
+							config.to = moment().subtract(1, 'week').endOf('week');
+							break;
+						case 'today':
+							config.from = moment().startOf('day');
+							config.to = moment().endOf('day');
+							break;
+					}
+				}
+				return config;
+				})}),
 			headers: {
 				'Content-Type': 'application/json'
 			}

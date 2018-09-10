@@ -34,14 +34,16 @@ class DescriptiveStatisticsContainer extends Component {
 		descrStatConfigs: [
 			{
 				featureName: 'fatigue_level',
-				from: 1535174664000,
-				to: 1535216964000,
+				from: undefined,
+				to: undefined,
+				dynamicTimerange: 'thisweek',  // means that from/to is calculated relative to the current time
 				accumulator: this.accumulators.MAX
 			},
 			{
 				featureName: 'linear_accelerometer',
 				from: 1535174664000,
 				to: 1535216964000,
+				dynamicTimerange: false,
 				accumulator: this.accumulators.AVG
 			}
 		],
@@ -156,24 +158,22 @@ class DescriptiveStatisticsContainer extends Component {
 	handleDialogCloseAdd = () => {
 
 		// calculate dates
-		let from = 0;
-		let to = 0;
+		let from = undefined;
+		let to = undefined;
+		let dynamicTimerange = false;
 		switch(this.state.newTileDialog.timespanRadiobuttonsValue) {
+			// TODO does not really make sense since the last changes
 			case 'yesterday':
-				from = moment().subtract(1, 'day').startOf('day');
-				to = moment().subtract(1, 'day').endOf('day');
+				dynamicTimerange = 'yesterday'
 				break;
 			case 'thisweek':
-				from = moment().startOf('week');
-				to = moment().endOf('week');
+				dynamicTimerange = 'thisweek'
 				break;
 			case 'lastweek':
-				from = moment().subtract(1, 'week').startOf('week');
-				to = moment().subtract(1, 'week').endOf('week');
+				dynamicTimerange = 'lastweek'
 				break;
 			default: // today
-				from = moment().startOf('day');
-				to = moment().endOf('day');
+				dynamicTimerange = 'today'
 				break;
 		}
 
@@ -184,8 +184,9 @@ class DescriptiveStatisticsContainer extends Component {
 		this.setState({
 			descrStatConfigs: [...this.state.descrStatConfigs, {
 				featureName: feature,
-				from: from.unix() * 1000,
-				to: to.unix() * 1000,
+				from: from ? (from.unix() * 1000) : undefined,
+				to: to ? (to.unix() * 1000) : undefined,
+				dynamicTimerange: dynamicTimerange,
 				accumulator: this.state.newTileDialog.dropdownValueAccM
 			}]
 		});
