@@ -5,7 +5,6 @@ import Card from '@material-ui/core/Card'
 import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button';
-import TextField from '@material-ui/core/TextField';
 import Dialog from '@material-ui/core/Dialog';
 import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
@@ -18,6 +17,7 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 
 import DescriptiveStatisticsLoader from './DescriptiveStatisticsLoader';
+const config = require('./config.json');
 
 let moment = require('moment');
 
@@ -31,21 +31,9 @@ class DescriptiveStatisticsContainer extends Component {
 	});
 
 	state = {
+		// default config, is only used on the first call when the user did not save a custom config yet
 		descrStatConfigs: [
-			{
-				featureName: 'fatigue_level',
-				from: undefined,
-				to: undefined,
-				dynamicTimerange: 'thisweek',  // means that from/to is calculated relative to the current time
-				accumulator: this.accumulators.MAX
-			},
-			{
-				featureName: 'linear_accelerometer',
-				from: 1535174664000,
-				to: 1535216964000,
-				dynamicTimerange: false,
-				accumulator: this.accumulators.AVG
-			}
+
 		],
 		newTileDialog: {
 			dialogopen: false,
@@ -55,6 +43,54 @@ class DescriptiveStatisticsContainer extends Component {
 			dialogDropdownAccMOpen: false,
 			dropdownValueAccM: this.accumulators.MAX
 		}
+	}
+
+	defaultConfigs = [
+		{
+			featureName: 'fatigue_level',
+			from: undefined,
+			to: undefined,
+			dynamicTimerange: 'thisweek',  // means that from/to is calculated relative to the current time
+			accumulator: this.accumulators.MAX
+		},
+		{
+			featureName: 'linear_accelerometer',
+			from: 1535174664000,
+			to: 1535216964000,
+			dynamicTimerange: false,
+			accumulator: this.accumulators.AVG
+		}
+	];
+
+	constructor(props){
+		super(props);
+		this.loadPersistedConfig(props);
+	}
+
+	loadPersistedConfig(props){
+		fetch(`${config.profiles[config.activeProfile].server}/dashboardconfig`, {
+			method: 'GET'
+		}).then(response => {
+			if (response.ok) {
+				response.json().then(json => {
+					console.log(`loading persisted config successful: ${json}`);
+					if (json.descrStatConfigs) {
+						this.setState({
+							descrStatConfigs: JSON.parse(json.descrStatConfigs)
+						});
+					} else {
+						this.setState({
+							descrStatConfigs: this.defaultConfigs
+						});
+					}
+
+				}).catch(jsonError => {
+					console.error(`could not parse response json for loading dashboard descr stats config call`,jsonError);
+				});
+			}
+		}).catch(fetchError => {
+			console.error(`load persisted descr stats dashboard config call failed`,fetchError);
+		});
 	}
 
 	render(){

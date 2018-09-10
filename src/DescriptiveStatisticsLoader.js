@@ -28,6 +28,7 @@ class DescriptiveStatisticsLoader extends Component {
 			return;
 		}
 		console.log('tileconfig changed, will reload');
+		this.persistConfig();
 		this.state.renderedTileconfig = JSON.stringify(this.props.descrStatConfigs);
 
 
@@ -70,6 +71,24 @@ class DescriptiveStatisticsLoader extends Component {
 				console.error('parsing descr stats json failed',jsonError);
 			});
 		}).catch(error => {console.error('loading descr stats failed',error)});
+	}
+
+	persistConfig() {
+		console.log(`Descr Stat config changed, will persist it`);
+
+		fetch(`${config.profiles[config.activeProfile].server}/dashboardconfig`, {
+			method: 'POST',
+			body: JSON.stringify({descrStatConfigs: this.props.descrStatConfigs}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}).then(response => {
+			if (response.ok) {
+					console.log(`persisting config successful`);
+			}
+		}).catch(fetchError => {
+			console.error(`persist descr stats dashboard config call failed`,fetchError);
+		});
 	}
 
 	render(){

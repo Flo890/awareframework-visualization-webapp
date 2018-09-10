@@ -11,24 +11,30 @@ import ColorHash from "color-hash";
 import TimelineNotes from "./TimelineNotes";
 
 let moment = require('moment');
+const config = require('./config.json');
 
 class TimelineContainer extends Component {
 
 	constructor(props) {
 		super(props);
+		this.loadPersistedConfig();
 		this.state = {
 			userconfig: {
-				timeline: {
-					fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,//1533877920000,
-					toDate: moment().unix()*1000,//1533921120000,
-					selectedFeatures: [
-						{key:"temperature",display_name:"outside temperature"},
-						{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
-						{key:"fatigue_level",display_name:"fatigue level"}
-					]
-				}
+
 			}
 		}
+	}
+
+	defaultUserconfig = {
+			timeline: {
+				fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,//1533877920000,
+				toDate: moment().unix()*1000,//1533921120000,
+				selectedFeatures: [
+					{key:"temperature",display_name:"outside temperature"},
+					{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
+					{key:"fatigue_level",display_name:"fatigue level"}
+				]
+			}
 	}
 
 	onDateFromChange = date => {
@@ -49,6 +55,19 @@ class TimelineContainer extends Component {
 
 	render() {
 		let colorHash = new ColorHash();
+
+		if (!this.state.userconfig.timeline) {
+			// if config not loaded yet, render something empty instead
+			return (
+				<div>
+					<Card className="timeline_card">
+						<CardContent>
+						</CardContent>
+					</Card>
+				</div>
+			);
+		}
+
 		return (
 			<div>
 				<Card className="timeline_card">
@@ -151,7 +170,30 @@ class TimelineContainer extends Component {
 		});
 	}
 
-
+	loadPersistedConfig(props){
+		fetch(`${config.profiles[config.activeProfile].server}/dashboardconfig`, {
+			method: 'GET'
+		}).then(response => {
+			if (response.ok) {
+				response.json().then(json => {
+					console.log(`loading persisted timeline config successful: ${json}`);
+					if (json.timelineConfigs) {
+						this.setState({
+							userconfig: {timeline: JSON.parse(json.timelineConfigs)}
+						});
+					} else {
+						this.setState({
+							userconfig: this.defaultUserconfig
+						});
+					}
+				}).catch(jsonError => {
+					console.error(`could not parse response json for loading dashboard timeline config call`,jsonError);
+				});
+			}
+		}).catch(fetchError => {
+			console.error(`load persisted timeline dashboard config call failed`,fetchError);
+		});
+	}
 
 
 

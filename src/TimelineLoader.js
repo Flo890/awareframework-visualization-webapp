@@ -21,6 +21,7 @@ class TimelineLoader extends Component {
 		if (this.state.renderedUserconfig && JSON.stringify(this.state.renderedUserconfig) !== JSON.stringify(this.props.userconfig)){
 			console.log('and decided to reload data');
 			this.reloadData(this.props.userconfig.fromDate != this.state.renderedUserconfig.fromDate || this.props.userconfig.toDate != this.state.renderedUserconfig.toDate); // reload all if from or to date has changed
+			this.persistConfig();
 		}
 	}
 
@@ -129,6 +130,24 @@ class TimelineLoader extends Component {
 		}
 
 		return granularity;
+	}
+
+	persistConfig() {
+		console.log(`Descr Stat config changed, will persist it`);
+
+		fetch(`${config.profiles[config.activeProfile].server}/dashboardconfig`, {
+			method: 'POST',
+			body: JSON.stringify({timelineConfigs: this.props.userconfig}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}).then(response => {
+			if (response.ok) {
+				console.log(`persisting timeline config successful`);
+			}
+		}).catch(fetchError => {
+			console.error(`persist descr stats dashboard timeline config call failed`,fetchError);
+		});
 	}
 
 }
