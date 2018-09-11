@@ -28,7 +28,7 @@ class TimelineLoader extends Component {
 		console.log('TimelineLoader.componentDidUpdate()');
 		if (this.state.renderedUserconfig && JSON.stringify(this.state.renderedUserconfig) !== JSON.stringify(this.props.userconfig)){
 			console.log('and decided to reload data');
-			this.reloadData(this.props.userconfig.fromDate != this.state.renderedUserconfig.fromDate || this.props.userconfig.toDate != this.state.renderedUserconfig.toDate); // reload all if from or to date has changed
+			this.reloadData(this.props.userconfig.fromDate != this.state.renderedUserconfig.fromDate || this.props.userconfig.toDate != this.state.renderedUserconfig.toDate || this.props.userconfig.maxValues != this.state.renderedUserconfig.maxValues); // reload all if from or to date has changed
 			this.persistConfig();
 		}
 	}
@@ -75,7 +75,7 @@ class TimelineLoader extends Component {
 
 
 	loadData(featureName, dataKey = 'value', color = 'blue', displayName, displayUnit){
-		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate);
+		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate, this.props.userconfig.maxValues);
 
 		fetch(
 			`${config.profiles[config.activeProfile].server}/features/getone?feature_name=${featureName}&participant_email=${this.props.userinfo.participantEmail}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,
@@ -96,6 +96,8 @@ class TimelineLoader extends Component {
 			this.setState(prevState => {
 				if (!this.noGapsFeatures().includes(featureName)) {
 					this.fillGapsWithNull(json, granularity);
+					console.log(`added nulls for ${featureName}`);
+					console.log(json);
 				}
 				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, displayUnit: displayUnit, data:json, dataKey: dataKey, color: color};
 				return prevState;
@@ -123,10 +125,10 @@ class TimelineLoader extends Component {
 	 *
 	 * @param from {date}
 	 * @param to {date}
+	 * @param maxNumberDatapoints
 	 * @returns {number} date granularity in minutes (one of steps array)
 	 */
-	granularityFunction(from,to){
-		const maxNumberDatapoints = 100;
+	granularityFunction(from,to,maxNumberDatapoints){
 		const steps = [5,10,15,30,60,60*3,60*24];
 
 		// start with 5 minutes, and check whether that yields at most 100 datapoints. If no reduce data frequency, check again, ...

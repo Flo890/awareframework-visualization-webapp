@@ -4,7 +4,7 @@ import {LinePath, Line} from '@vx/shape';
 import {scaleTime, scaleLinear} from '@vx/scale';
 import {extent,max,bisector} from 'd3-array';
 import { AxisLeft, AxisBottom } from '@vx/axis';
-import { curveNatural } from '@vx/curve';
+import { curveNatural, curveStepAfter, curveStep } from '@vx/curve';
 
 let moment = require('moment');
 
@@ -96,7 +96,7 @@ class TimelineVis extends Component {
 					onMouseMove={data => event => this.handleLineHover(dataset.featureName)}
 					onTouchEnd={data => event => this.setState({ position: null, positionDate: null })}
 					onMouseLeave={data => event => this.setState({ position: null, positionDate: null })}
-					curve={curveNatural}
+					curve={dataset.featureName == 'sleep' ? curveStepAfter : curveNatural}
 					defined={d => {return d.value != null}}
 				/>
 			);

@@ -9,6 +9,8 @@ import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import ColorHash from "color-hash";
 import TimelineNotes from "./TimelineNotes";
+import Slider from 'rc-slider/lib/Slider';
+import 'rc-slider/assets/index.css';
 
 let moment = require('moment');
 const config = require('./config.json');
@@ -27,13 +29,14 @@ class TimelineContainer extends Component {
 
 	defaultUserconfig = {
 			timeline: {
-				fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,//1533877920000,
-				toDate: moment().unix()*1000,//1533921120000,
+				fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,
+				toDate: moment().unix()*1000,
 				selectedFeatures: [
 					{key:"temperature",display_name:"outside temperature"},
 					{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
 					{key:"fatigue_level",display_name:"fatigue level"}
-				]
+				],
+				maxValues: 50
 			}
 	}
 
@@ -89,6 +92,7 @@ class TimelineContainer extends Component {
 							/>
 						</div>
 						<div className="feature_chooser">
+							<h3>available features:</h3>
 							{
 								this.props.availableFeatures.map(feature => {
 									let isSelected = false;
@@ -121,6 +125,10 @@ class TimelineContainer extends Component {
 
 								})
 							}
+						</div>
+						<div>
+							<h3>degree of detail:</h3>
+							<Slider onChange={this.handleGranularitySlider.bind(this)} defaultValue={this.state.userconfig.timeline.maxValues}/>
 						</div>
 						<TimelineNotes
 							participantId={this.props.participantId}
@@ -195,6 +203,20 @@ class TimelineContainer extends Component {
 		});
 	}
 
+	handleGranularitySlider(value) {
+		// throttle events
+		if (this.granularitySliderThrottle) {
+			clearTimeout(this.granularitySliderThrottle);
+		}
+		this.granularitySliderThrottle = setTimeout(()=>{
+			console.log(value);
+			this.granularitySliderThrottle = undefined;
+			this.setState(prevState => {
+				prevState.userconfig.timeline.maxValues = value;
+				return prevState;
+			});
+		},500);
+	}
 
 
 }
