@@ -15,6 +15,14 @@ class TimelineLoader extends Component {
 		this.reloadData();
 	}
 
+	/**
+	 *
+	 * @returns {string[]} features for which no null values should be added if there are gaps in the data, because we can assume a linear transition
+	 */
+	noGapsFeatures(){
+		return ['temperature','humidity','pressure','cloudiness'];
+	}
+
 	componentDidUpdate(prevProps, prevState){
 		// the given prev.. parameters are not the previous ones, that are the new ones!
 		console.log('TimelineLoader.componentDidUpdate()');
@@ -86,7 +94,9 @@ class TimelineLoader extends Component {
 			console.log(json);
 
 			this.setState(prevState => {
-				this.fillGapsWithNull(json, granularity);
+				if (!this.noGapsFeatures().includes(featureName)) {
+					this.fillGapsWithNull(json, granularity);
+				}
 				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, data:json, dataKey: dataKey, color: color};
 				return prevState;
 			});
@@ -116,7 +126,7 @@ class TimelineLoader extends Component {
 	 * @returns {number} date granularity in minutes (one of steps array)
 	 */
 	granularityFunction(from,to){
-		const maxNumberDatapoints = 20;
+		const maxNumberDatapoints = 100;
 		const steps = [5,10,15,30,60,60*3,60*24];
 
 		// start with 5 minutes, and check whether that yields at most 100 datapoints. If no reduce data frequency, check again, ...
