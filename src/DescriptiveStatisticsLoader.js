@@ -39,20 +39,20 @@ class DescriptiveStatisticsLoader extends Component {
 				if (config.dynamicTimerange) {
 					switch(config.dynamicTimerange){
 						case 'yesterday':
-							config.from = moment().subtract(1, 'day').startOf('day');
-							config.to = moment().subtract(1, 'day').endOf('day');
+							config.from = moment().subtract(1, 'day').startOf('day').unix()*1000;
+							config.to = moment().subtract(1, 'day').endOf('day').unix()*1000;
 							break;
 						case 'thisweek':
-							config.from = moment().startOf('week');
-							config.to = moment().endOf('week');
+							config.from = moment().startOf('week').unix()*1000;
+							config.to = moment().endOf('week').unix()*1000;
 							break;
 						case 'lastweek':
-							config.from = moment().subtract(1, 'week').startOf('week');
-							config.to = moment().subtract(1, 'week').endOf('week');
+							config.from = moment().subtract(1, 'week').startOf('week').unix()*1000;
+							config.to = moment().subtract(1, 'week').endOf('week').unix()*1000;
 							break;
 						case 'today':
-							config.from = moment().startOf('day');
-							config.to = moment().endOf('day');
+							config.from = moment().startOf('day').unix()*1000;
+							config.to = moment().endOf('day').unix()*1000;
 							break;
 					}
 				}
