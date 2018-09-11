@@ -50,7 +50,7 @@ class TimelineLoader extends Component {
 		this.props.selectedFeatures
 			.filter(selectedFeature => {if(!reloadAll && this.state.datasets[selectedFeature.key]){ return false} else {return true}}) // only load those that don't exist yet
 			.forEach(selectedFeature => {
-			this.loadData(selectedFeature.key, 'value', colorHash.hex(selectedFeature.key), selectedFeature.display_name);
+			this.loadData(selectedFeature.key, 'value', colorHash.hex(selectedFeature.key), selectedFeature.display_name, selectedFeature.display_unit);
 		});
 		this.state.renderedUserconfig = JSON.parse(JSON.stringify(this.props.userconfig));
 
@@ -74,7 +74,7 @@ class TimelineLoader extends Component {
 	}
 
 
-	loadData(featureName, dataKey = 'value', color = 'blue', displayName){
+	loadData(featureName, dataKey = 'value', color = 'blue', displayName, displayUnit){
 		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate);
 
 		fetch(
@@ -97,7 +97,7 @@ class TimelineLoader extends Component {
 				if (!this.noGapsFeatures().includes(featureName)) {
 					this.fillGapsWithNull(json, granularity);
 				}
-				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, data:json, dataKey: dataKey, color: color};
+				prevState.datasets[featureName] = {featureName: featureName, displayName: displayName, displayUnit: displayUnit, data:json, dataKey: dataKey, color: color};
 				return prevState;
 			});
 		}).catch(error => {

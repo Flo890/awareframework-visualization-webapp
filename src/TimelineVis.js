@@ -4,6 +4,7 @@ import {LinePath, Line} from '@vx/shape';
 import {scaleTime, scaleLinear} from '@vx/scale';
 import {extent,max,bisector} from 'd3-array';
 import { AxisLeft, AxisBottom } from '@vx/axis';
+import { curveNatural } from '@vx/curve';
 
 let moment = require('moment');
 
@@ -24,13 +25,13 @@ class TimelineVis extends Component {
 
 
 		// some sizing parameters
-		const width = 700;
+		const width = 1000;
 		const height = 500;
 		const margin = {
 			top: 60,
 			bottom: 60,
 			left: 80,
-			right: 80,
+			right: 200,
 		};
 		const xMax = width - margin.left - margin.right;
 		const yMax = height - margin.top - margin.bottom;
@@ -95,6 +96,7 @@ class TimelineVis extends Component {
 					onMouseMove={data => event => this.handleLineHover(dataset.featureName)}
 					onTouchEnd={data => event => this.setState({ position: null, positionDate: null })}
 					onMouseLeave={data => event => this.setState({ position: null, positionDate: null })}
+					curve={curveNatural}
 					defined={d => {return d.value != null}}
 				/>
 			);
@@ -103,7 +105,7 @@ class TimelineVis extends Component {
 					linePaths.push(
 						<g key={`${dataset.featureName}-details`} transform={`translate(${hoveredDataPoint.xPx},${hoveredDataPoint.yPx})`}>
 							<circle  r="4.5" fill="none" stroke="steelblue" />
-							<text x="9" dy=".35em">{`${dataset.displayName}: ${Math.floor(hoveredDataPoint.dataObject.value*100)/100}`}</text>
+							<text x="9" dy=".35em">{`${dataset.displayName}: ${Math.floor(hoveredDataPoint.dataObject.value*100)/100} ${dataset.displayUnit ? dataset.displayUnit : ''}`}</text>
 						</g>
 					);
 			}
@@ -114,7 +116,7 @@ class TimelineVis extends Component {
 						scale={yScale}
 						top={0}
 						left={0}
-						label={dataset.displayName}
+						label={`${dataset.displayName} ${dataset.displayUnit ? '('+dataset.displayUnit+')':''}`}
 						stroke={'#1b1a1e'}
 						tickTextFill={'#1b1a1e'}
 					/>
@@ -145,8 +147,8 @@ class TimelineVis extends Component {
 							/>
 					)}
 					{this.state.position && (
-						<g key={`details-line-date`} transform={`translate(${this.state.position.x},0)`}>
-							<text x="9" dy=".35em">{moment(this.state.positionDate).format('ddd MMM Do [at] hh:mm')}</text>
+						<g key={`details-line-date`} transform={`translate(${this.state.position.x},${-margin.top/2})`}>
+							<text x="9" dy=".35em">{moment(this.state.positionDate).format('ddd MMM Do [at] kk:mm')}</text>
 						</g>
 					)}
 					<AxisBottom
@@ -175,8 +177,6 @@ class TimelineVis extends Component {
 		this.setState({
 			yAxis: featureName
 		});
-
-
 	}
 
 	handleGraphAreaHover(event, data, xSelector, xScale, margin) {
