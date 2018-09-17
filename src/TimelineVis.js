@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {Group} from '@vx/group';
-import {LinePath, Line} from '@vx/shape';
+import {LinePath, Line, Bar} from '@vx/shape';
 import {scaleTime, scaleLinear} from '@vx/scale';
 import {extent,max,bisector} from 'd3-array';
 import { AxisLeft, AxisBottom } from '@vx/axis';
@@ -56,6 +56,7 @@ class TimelineVis extends Component {
 
 
 		let linePaths = [];
+		let bars = [];
 		let yAxisComponent = "";
 		for(let i = 0; i<Object.values(this.props.datasets).length; i++){
 			let dataset = Object.values(this.props.datasets)[i];
@@ -96,10 +97,11 @@ class TimelineVis extends Component {
 					onMouseMove={data => event => this.handleLineHover(dataset.featureName)}
 					onTouchEnd={data => event => this.setState({ position: null, positionDate: null })}
 					onMouseLeave={data => event => this.setState({ position: null, positionDate: null })}
-					curve={dataset.featureName == 'sleep' ? curveStepAfter : curveNatural}
+					curve={dataset.featureName == 'sleep' || true ? curveStepAfter : curveNatural}
 					defined={d => {return d.value != null}}
 				/>
 			);
+
 			// TODO make this overlays more efficient, e.g. by moving it into a component to avoid rerendering the full graph
 			if (hoveredDataPoint) {
 					linePaths.push(
@@ -124,6 +126,28 @@ class TimelineVis extends Component {
 			}
 		}
 
+		let timesegmentNotes = [];
+		this.props.timesegmentNotes.forEach(aTimesegmentNote => {
+			let xLeftInSvg = xScale(aTimesegmentNote.dateFrom*1000);
+			let xRightInSvg = xScale(aTimesegmentNote.dateTo*1000);
+			let itemWidth = Math.min(xRightInSvg, width - margin.right) - Math.max(xLeftInSvg, 0);
+
+			// show only if in currently configured time range
+			if (xRightInSvg > 0 && xLeftInSvg < width-margin.right) {
+				timesegmentNotes.push(
+					<g key={`timesegment-note-${xLeftInSvg}-${xRightInSvg}-${aTimesegmentNote.noteText}`} transform={`translate(${Math.max(xLeftInSvg, 0)},${-margin.top / 2})`}>
+						<rect x="0" y="6" width={itemWidth}
+							  height="3"></rect>
+						<rect x="0" y="0" width="3"
+							  height="15"></rect>
+						<rect x={itemWidth - 3} y="0" width="3"
+							  height="15"></rect>
+						<text x="9" y="-10" dy=".35em">{aTimesegmentNote.noteText}</text>
+					</g>
+				)
+			}
+
+		});
 
 
 		let myChart = (
@@ -131,6 +155,15 @@ class TimelineVis extends Component {
 				<Group top={margin.top} left={margin.left} >
 					<rect top={margin.top} left={margin.left} width={width - margin.left} height={height - margin.top} style={{pointerEvents: 'all'}} fill="transparent" onMouseMove={reactSyntheticEvent => {
 						this.handleGraphAreaHover(
+							reactSyntheticEvent.nativeEvent,
+							mergedData,
+							x,
+							xScale,
+							margin
+						)
+					}}
+					onClick={reactSyntheticEvent => {
+						this.handleGraphAreaClick(
 							reactSyntheticEvent.nativeEvent,
 							mergedData,
 							x,
@@ -151,6 +184,7 @@ class TimelineVis extends Component {
 							<text x="9" dy=".35em">{moment(this.state.positionDate).format('ddd MMM Do [at] kk:mm')}</text>
 						</g>
 					)}
+					{timesegmentNotes}
 					<AxisBottom
 						scale={xScale}
 						top={yMax}
@@ -206,6 +240,13 @@ class TimelineVis extends Component {
 			}
 
 
+	}
+
+	handleGraphAreaClick(event, data, xSelector, xScale, margin) {
+		let eventXInSvg = event.offsetX - margin.left;
+		const x0 = xScale.invert(eventXInSvg); // the datetime which the user hovered
+
+		this.props.timelineContainerRef.showTimesegmentNoteAddDialog(this.props.timelineContainerRef, x0);
 	}
 }
 

@@ -11,6 +11,17 @@ import ColorHash from "color-hash";
 import TimelineNotes from "./TimelineNotes";
 import Slider from 'rc-slider/lib/Slider';
 import 'rc-slider/assets/index.css';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import FormControl from '@material-ui/core/FormControl';
+import InputLabel from '@material-ui/core/InputLabel';
+import FormLabel from '@material-ui/core/FormLabel';
+import Button from '@material-ui/core/Button';
+import Input from '@material-ui/core/Input';
+import TextField from '@material-ui/core/TextField'
 
 let moment = require('moment');
 const config = require('./config.json');
@@ -23,8 +34,15 @@ class TimelineContainer extends Component {
 		this.state = {
 			userconfig: {
 
+			},
+			timesegmentNoteDialog: {
+				dialogopen: false,
+				dateFrom: undefined,
+				dateTo: undefined,
+				noteText: ''
 			}
 		}
+		this.timelineLoader = React.createRef();
 	}
 
 	defaultUserconfig = {
@@ -80,6 +98,8 @@ class TimelineContainer extends Component {
 							userconfig={this.state.userconfig.timeline}
 							selectedFeatures={this.state.userconfig.timeline.selectedFeatures}
 							userinfo={this.props.userinfo}
+							timelineContainerRef={this}
+							ref={this.timelineLoader}
 						/>
 						<div className="range_choosers">
 							<DateTimePicker
@@ -137,6 +157,54 @@ class TimelineContainer extends Component {
 						/>
 					</CardContent>
 				</Card>
+
+
+
+				<Dialog
+					open={this.state.timesegmentNoteDialog.dialogopen}
+					onClose={this.handleDialogClose}
+					aria-labelledby="form-dialog-title"
+				>
+					<DialogTitle id="form-dialog-title">Add note for time segment</DialogTitle>
+					<DialogContent>
+						<DialogContentText>
+							TODO a text
+						</DialogContentText>
+						<form autoComplete="off">
+							<FormControl className="dropdown_accm">
+								<InputLabel htmlFor="demo-controlled-open-select">your note</InputLabel>
+									<TextField
+										fullWidth={true}
+										onChange={this.onTimesegmentNoteTextChange.bind(this)}
+										value={this.state.timesegmentNoteDialog.noteText}
+									/>
+
+							</FormControl>
+							<FormControl component="fieldset" className="timespan_buttons" >
+								<FormLabel component="legend">Timespan from</FormLabel>
+								<DateTimePicker
+									onChange={this.onTimesegmentNoteDateFromChange}
+									value={new Date(this.state.timesegmentNoteDialog.dateFrom*1000)}
+								/>
+							</FormControl>
+							<FormControl component="fieldset" className="timespan_buttons" >
+								<FormLabel component="legend">Timespan to</FormLabel>
+								<DateTimePicker
+									onChange={this.onTimesegmentNoteDateToChange}
+									value={new Date(this.state.timesegmentNoteDialog.dateTo*1000)}
+								/>
+							</FormControl>
+						</form>
+					</DialogContent>
+					<DialogActions>
+						<Button onClick={this.handleDialogCloseCancel} color="secondary">
+							Cancel
+						</Button>
+						<Button onClick={this.handleDialogCloseAdd} color="primary">
+							Add Tile
+						</Button>
+					</DialogActions>
+				</Dialog>
 			</div>
 		);
 	}
@@ -218,6 +286,57 @@ class TimelineContainer extends Component {
 		},500);
 	}
 
+	// ------------- timespan dialog ----------------
+
+	// called in TimelineVis
+	showTimesegmentNoteAddDialog(timelineContainerRef, clickedDatetime){
+		timelineContainerRef.setState(prevState => {
+			prevState.timesegmentNoteDialog.dialogopen = true;
+			prevState.timesegmentNoteDialog.dateFrom = moment(clickedDatetime).unix();
+			prevState.timesegmentNoteDialog.dateTo = moment(clickedDatetime).add(1,'hours').unix();
+			return prevState;
+		});
+	}
+
+	onTimesegmentNoteDateFromChange = date => {
+		this.setState(prevState => {
+			prevState.timesegmentNoteDialog.dateFrom = date.getTime()/1000;
+			return prevState;
+		});
+		console.log(`from set to ${date}`);
+	};
+
+	onTimesegmentNoteDateToChange = date => {
+		this.setState(prevState => {
+			prevState.timesegmentNoteDialog.dateTo = date.getTime()/1000;
+			return prevState;
+		});
+		console.log(`from set to ${date}`);
+	};
+
+	onTimesegmentNoteTextChange = (event) => {
+		let newText = event.target.value;
+			this.setState(prevState => {
+				prevState.timesegmentNoteDialog.noteText = newText;
+				return prevState;
+			});
+			console.log(`note text set to ${newText}`);
+	}
+
+	handleDialogCloseCancel = () => {
+		this.setState(state => {
+			state.timesegmentNoteDialog.dialogopen = false;
+			return state;
+		});
+	};
+
+	handleDialogCloseAdd = () => {
+		this.setState(state => {
+			state.timesegmentNoteDialog.dialogopen = false;
+			return state;
+		});
+		this.timelineLoader.current.createNewTimesegmentNote(this.state.timesegmentNoteDialog);
+	};
 
 }
 

@@ -19,7 +19,7 @@ class TimelineNotes extends Component {
 	}
 
 	loadNotes(){
-		fetch(`${config.profiles[config.activeProfile].server}/notes/get`).then(json => {json.json().then(notes => {
+		fetch(`${config.profiles[config.activeProfile].server}/notes/get?type=TIMELINE`).then(json => {json.json().then(notes => {
 			for(let i = 0; i<notes.length; i++){
 				notes[i].timeline_config = JSON.parse(notes[i].timeline_config);
 			}
@@ -118,7 +118,7 @@ class TimelineNotes extends Component {
 
 		fetch(`${config.profiles[config.activeProfile].server}/notes/save`, {
 			method: 'POST',
-			body: JSON.stringify({inputText: this.state.inputText, timelineConfig: this.props.timelineConfig}),
+			body: JSON.stringify({inputText: this.state.inputText, timelineConfig: this.props.timelineConfig, noteType: 'TIMELINE'}),
 			headers: {
 				'Content-Type': 'application/json'
 			}

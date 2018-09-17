@@ -10,9 +10,11 @@ class TimelineLoader extends Component {
 	constructor(props){
 		super(props);
 		this.state = {
-			datasets: {}
-		}
+			datasets: {},
+			timesegmentNotes: []
+		};
 		this.reloadData();
+		this.loadTimesegmentNotes();
 	}
 
 	/**
@@ -39,6 +41,9 @@ class TimelineLoader extends Component {
 			return (
 				<TimelineVis
 					datasets={this.state.datasets}
+					queryGranularity={this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate, this.props.userconfig.maxValues)}
+					timelineContainerRef={this.props.timelineContainerRef}
+					timesegmentNotes={this.state.timesegmentNotes}
 				/>
 			);
 
@@ -159,6 +164,57 @@ class TimelineLoader extends Component {
 			}
 		}).catch(fetchError => {
 			console.error(`persist descr stats dashboard timeline config call failed`,fetchError);
+		});
+	}
+
+	createNewTimesegmentNote(dialogState) {
+		console.log('creating new timesegment note');
+
+		this.setState(prevState => {
+			prevState.timesegmentNotes.push({
+				dateFrom: dialogState.dateFrom,
+				dateTo: dialogState.dateTo,
+				noteText: dialogState.noteText
+			});
+			return prevState;
+		});
+
+		fetch(`${config.profiles[config.activeProfile].server}/notes/save`, {
+			method: 'POST',
+			body: JSON.stringify({inputText: dialogState.noteText, timelineConfig:  {dateFrom:dialogState.dateFrom, dateTo: dialogState.dateTo}, noteType: 'TIMESEGMENT'}),
+			headers: {
+				'Content-Type': 'application/json'
+			}
+		}).then(res => {
+			// update displayed notes
+			//this.loadNotes();
+			// clear input
+			// this.setState({
+			// 	inputText: ''
+			// });
+		}).catch(error => {
+			console.error('uploading note failed',error);
+		});
+	}
+
+	loadTimesegmentNotes(){
+		fetch(`${config.profiles[config.activeProfile].server}/notes/get?type=TIMESEGMENT`).then(json => {json.json().then(notes => {
+			let timesegmentNotes = [];
+			for(let i = 0; i<notes.length; i++){
+				let parsedJson = JSON.parse(notes[i].timeline_config);
+				timesegmentNotes[i] = {
+					dateFrom: parsedJson.dateFrom,
+					dateTo: parsedJson.dateTo,
+					noteText: notes[i].note_text
+				}
+			}
+			this.setState({
+				timesegmentNotes: timesegmentNotes
+			});
+		}).catch(jsonError => {
+			console.error(`parsing notes json failed`,jsonError);
+		})}).catch(error => {
+			console.error(`fetching notes failed`,error);
 		});
 	}
 
