@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import {Group} from '@vx/group';
-import {LinePath, Line, Bar} from '@vx/shape';
-import {scaleTime, scaleLinear} from '@vx/scale';
+import {LinePath, Line, BarGroup} from '@vx/shape';
+import {scaleTime, scaleLinear, scaleBand, scaleOrdinal } from '@vx/scale';
 import {extent,max,bisector} from 'd3-array';
 import { AxisLeft, AxisBottom } from '@vx/axis';
 import { curveNatural, curveStepAfter, curveStep } from '@vx/curve';
@@ -14,6 +14,9 @@ class TimelineVis extends Component {
 		positionDate: null
 	};
 	render(){
+
+		let useBars = this.props.queryGranularity == 1440; // show bar graph for daily data granularity, timeline otherwise
+
 		console.log('TimelineVis.render()');
 
 		let datasets = this.props.datasets;
@@ -34,17 +37,77 @@ class TimelineVis extends Component {
 			right: 200,
 		};
 		const xMax = width - margin.left - margin.right;
-		const yMax = height - margin.top - margin.bottom;
+		const yMax = height - margin.top - (!useBars ? margin.bottom : 100);
 
 		// map data properties to axis
 		const x = data => new Date(data.timestamp);
 
-
+		// longitudinal merge: a set containing all items (so multiple items for each timestamp, one for each feature)
 		let mergedData = [];
 		keys.forEach(key => {
 			mergedData = mergedData.concat(datasets[key].data);
 		});
 		//mergedData.sort((a,b) => {return a.timestamp < b.timestamp ? -1 : 1});
+
+
+		let mergedBarData = [];
+		let x0Scale = undefined;
+		let x1Scale = undefined;
+		let yScale = undefined;
+		let zScale = undefined;
+		let normalizedBarKeys = [];
+		if (useBars){
+			let barKeys = [];
+			let mergedBarDataWithKeys = {};
+			for(let i = 0; i<Object.values(this.props.datasets).length; i++) {
+				let dataset = Object.values(this.props.datasets)[i];
+				let data = dataset.data;
+				for (let j = 0; j < data.length; j++) {
+					if (!mergedBarDataWithKeys[data[j].timestamp]) {
+						mergedBarDataWithKeys[data[j].timestamp] = {timestamp: data[j].timestamp};
+					}
+					mergedBarDataWithKeys[data[j].timestamp][dataset.featureName] = data[j].value;
+				}
+				barKeys.push(dataset.featureName);
+			}
+			mergedBarData = Object.values(mergedBarDataWithKeys);
+
+			// normaliziation
+			let featureMaxima = {};
+			for(let i = 0; i<barKeys.length; i++){
+				// get maximum of each feature
+				featureMaxima[barKeys[i]] = max(mergedBarData, data => data[barKeys[i]]);
+				normalizedBarKeys.push(`${barKeys[i]}-normalized`);
+			}
+			for(let i = 0; i<mergedBarData.length; i++){
+				for (let j = 0; j<barKeys.length; j++) {
+					mergedBarData[i][`${barKeys[j]}-normalized`] = mergedBarData[i][barKeys[j]]/featureMaxima[barKeys[j]];
+				}
+			}
+
+			// scales
+			x0Scale = scaleBand({
+				rangeRound: [0, xMax],
+				domain: mergedBarData.map(x),
+				padding: 0.2,
+				tickFormat: () => (val) => moment(val).format("MMM Do")
+			});
+			x1Scale = scaleBand({
+				rangeRound: [0, x0Scale.bandwidth()],
+				domain: normalizedBarKeys,
+				padding: .1
+			});
+			yScale = scaleLinear({
+				rangeRound: [yMax, 0],
+				domain: [0, max(mergedBarData, (d) => {
+					return max(normalizedBarKeys, (key) => d[key])
+				})],
+			});
+			zScale = scaleOrdinal({
+				domain: normalizedBarKeys,
+				range: Object.values(this.props.datasets).map(dataset => dataset.color)
+			});
+		}
 
 
 
@@ -53,7 +116,6 @@ class TimelineVis extends Component {
 			range: [0, xMax],
 			domain: extent(mergedData, x)
 		});
-
 
 		let linePaths = [];
 		let bars = [];
@@ -83,24 +145,28 @@ class TimelineVis extends Component {
 				}
 			}
 
-			linePaths.push(
-				<LinePath
-					key={dataset.featureName}
-					data={dataset.data}
-					x={x}
-					y={y}
-					xScale={xScale}
-					yScale={yScale}
-					stroke={dataset.color}
-					onTouchStart={data => event => this.handleLineHover(dataset.featureName)}
-					onTouchMove={data => event => this.handleLineHover(dataset.featureName)}
-					onMouseMove={data => event => this.handleLineHover(dataset.featureName)}
-					onTouchEnd={data => event => this.setState({ position: null, positionDate: null })}
-					onMouseLeave={data => event => this.setState({ position: null, positionDate: null })}
-					curve={dataset.featureName == 'sleep' || true ? curveStepAfter : curveNatural}
-					defined={d => {return d.value != null}}
-				/>
-			);
+			if (!useBars) {
+				linePaths.push(
+					<LinePath
+						key={dataset.featureName}
+						data={dataset.data}
+						x={x}
+						y={y}
+						xScale={xScale}
+						yScale={yScale}
+						stroke={dataset.color}
+						onTouchStart={data => event => this.handleLineHover(dataset.featureName)}
+						onTouchMove={data => event => this.handleLineHover(dataset.featureName)}
+						onMouseMove={data => event => this.handleLineHover(dataset.featureName)}
+						onTouchEnd={data => event => this.setState({position: null, positionDate: null})}
+						onMouseLeave={data => event => this.setState({position: null, positionDate: null})}
+						curve={dataset.featureName == 'sleep' ? curveStepAfter : curveNatural}
+						defined={d => {
+							return d.value != null
+						}}
+					/>
+				);
+			}
 
 			// TODO make this overlays more efficient, e.g. by moving it into a component to avoid rerendering the full graph
 			if (hoveredDataPoint) {
@@ -126,11 +192,73 @@ class TimelineVis extends Component {
 			}
 		}
 
+
+		if(useBars) {
+				bars.push(
+					<BarGroup
+						top={margin.top}
+						data={mergedBarData}
+						keys={normalizedBarKeys}
+						height={yMax}
+						x0={x}
+						x0Scale={x0Scale}
+						x1Scale={x1Scale}
+						yScale={yScale}
+						zScale={zScale}
+						rx={4}
+						onClick={data => event => {
+							alert(`clicked: ${JSON.stringify(data)}`)
+						}}
+						onMouseOver={data => event => this.handleBarHover(event,data,margin,datasets,height)}
+						onMouseLeave={data => event => this.setState({position: null, positionDate: null})}
+					/>
+				);
+				bars.push(
+					<AxisBottom
+						scale={x0Scale}
+						top={yMax + margin.top}
+						stroke='#e5fd3d'
+						tickStroke='#e5fd3d'
+						hideAxisLine
+						tickLabelProps={(value, index) => ({
+							fill: '#000000',
+							fontSize: 11,
+							textAnchor: 'middle',
+						})}
+					/>
+				);
+			}
+
+
 		let timesegmentNotes = [];
 		this.props.timesegmentNotes.forEach(aTimesegmentNote => {
-			let xLeftInSvg = xScale(aTimesegmentNote.dateFrom*1000);
-			let xRightInSvg = xScale(aTimesegmentNote.dateTo*1000);
-			let itemWidth = Math.min(xRightInSvg, width - margin.right) - Math.max(xLeftInSvg, 0);
+			let xLeftInSvg = 0;
+			let xRightInSvg = 0;
+			let itemWidth = 0;
+			if (!useBars) {
+				xLeftInSvg = xScale(aTimesegmentNote.dateFrom * 1000);
+				xRightInSvg = xScale(aTimesegmentNote.dateTo * 1000);
+			}
+			else {
+				// get index of startdate of note
+				for (let i = 0; i<mergedBarData.length; i++) {
+					if (moment.unix(mergedBarData[i].timestamp/1000).dayOfYear() == moment.unix(aTimesegmentNote.dateFrom).dayOfYear()) {
+						xLeftInSvg = i*((width - margin.left - margin.right)/mergedBarData.length);
+						console.log(`found note start day: ${ moment.unix(aTimesegmentNote.dateFrom)}`);
+						break;
+					}
+				}
+				for (let i = 0; i<mergedBarData.length; i++) {
+					if (moment.unix(mergedBarData[i].timestamp/1000).dayOfYear() == moment.unix(aTimesegmentNote.dateTo).dayOfYear()) {
+						xRightInSvg = (i+1)*((width - margin.left - margin.right)/mergedBarData.length);
+						console.log(`found note end day: ${moment.unix(aTimesegmentNote.dateTo)}`);
+						break;
+					}
+				}
+			}
+
+			itemWidth = Math.min(xRightInSvg, width - margin.right) - Math.max(xLeftInSvg, 0);
+			console.log(`x left in svg: ${xLeftInSvg}, x rght in svg: ${xRightInSvg}`);
 
 			// show only if in currently configured time range
 			if (xRightInSvg > 0 && xLeftInSvg < width-margin.right) {
@@ -154,13 +282,15 @@ class TimelineVis extends Component {
 			<svg width={width} height={height}>
 				<Group top={margin.top} left={margin.left} >
 					<rect top={margin.top} left={margin.left} width={width - margin.left} height={height - margin.top} style={{pointerEvents: 'all'}} fill="transparent" onMouseMove={reactSyntheticEvent => {
-						this.handleGraphAreaHover(
-							reactSyntheticEvent.nativeEvent,
-							mergedData,
-							x,
-							xScale,
-							margin
-						)
+						if (!useBars) {
+							this.handleGraphAreaHover(
+								reactSyntheticEvent.nativeEvent,
+								mergedData,
+								x,
+								xScale,
+								margin
+							)
+						}
 					}}
 					onClick={reactSyntheticEvent => {
 						this.handleGraphAreaClick(
@@ -171,27 +301,34 @@ class TimelineVis extends Component {
 							margin
 						)
 					}}/>
-					{linePaths}
-					{this.state.position && (
+					{!useBars && linePaths}
+					{bars}
+					{!useBars && this.state.position && (
 							<Line
 								from={{ x: this.state.position.x, y: 0 }}
 								to={{ x: this.state.position.x, y: height }}
 								strokeWidth={1}
 							/>
 					)}
-					{this.state.position && (
+					{useBars && this.state.position && (
+						<g key={`details`} transform={`translate(${this.state.position.x},${this.state.position.y})`}>
+							<circle  r="4.5" fill="none" stroke="steelblue" />
+							<text x="9" dy=".35em">{`${this.state.position.hoveredFeatureName}: ${this.state.position.value}`}</text>
+						</g>
+					)}
+					{!useBars && this.state.position && (
 						<g key={`details-line-date`} transform={`translate(${this.state.position.x},${-margin.top/2})`}>
 							<text x="9" dy=".35em">{moment(this.state.positionDate).format('ddd MMM Do [at] kk:mm')}</text>
 						</g>
 					)}
 					{timesegmentNotes}
-					<AxisBottom
+					{!useBars && (<AxisBottom
 						scale={xScale}
 						top={yMax}
 						label={'Time'}
 						stroke={'#1b1a1e'}
 						tickTextFill={'#1b1a1e'}
-						/>
+					/>)}
 					{yAxisComponent}
 				</Group>
 			</svg>
@@ -210,6 +347,20 @@ class TimelineVis extends Component {
 		// display according y axis
 		this.setState({
 			yAxis: featureName
+		});
+	}
+
+	handleBarHover(event, barData, margin, datasets, height){
+		let eventXInSvg = event.offsetX - margin.left;  // the x value within the graph, where the user hovered
+		let nonNormalizedFeatureName = barData.key.replace('-normalized','');
+
+		this.setState({
+			position: {
+				x: event.nativeEvent.layerX-margin.left - 50,
+				y: height - event.target.height.baseVal.value - 120,
+				hoveredFeatureName: datasets[barData.key.replace('-normalized','')].displayName,
+				value: `${Math.round(barData.data[nonNormalizedFeatureName]*10)/10} ${datasets[nonNormalizedFeatureName].displayUnit ? datasets[nonNormalizedFeatureName].displayUnit : ''}`
+			}
 		});
 	}
 
