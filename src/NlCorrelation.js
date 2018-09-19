@@ -9,6 +9,8 @@ import Menu from '@material-ui/core/Menu';
 import MenuItem from '@material-ui/core/MenuItem';
 import Fade from '@material-ui/core/Fade';
 
+const config = require('./config.json');
+
 
 class NlCorrelation extends Component {
 
@@ -46,9 +48,9 @@ class NlCorrelation extends Component {
 							onClose={this.handleHideMenuClose}
 							TransitionComponent={Fade}
 						>
-							<MenuItem onClick={this.handleHideMenuClose}>Hide this one</MenuItem>
-							<MenuItem onClick={this.handleHideMenuClose}>Don't show correlations regarding {this.props.correlation.feature_one} in the future</MenuItem>
-							<MenuItem onClick={this.handleHideMenuClose}>Don't show  correlations regarding {this.props.correlation.feature_two} in the future</MenuItem>
+							<MenuItem onClick={this.handleHideSingleCorrelation}>Hide this one</MenuItem>
+							<MenuItem onClick={() => {this.handleHideCorrelationForFeature(this.props.correlation.feature_one)}}>Don't show correlations regarding {this.props.correlation.feature_one} in the future</MenuItem>
+							<MenuItem onClick={() => {this.handleHideCorrelationForFeature(this.props.correlation.feature_two)}}>Don't show  correlations regarding {this.props.correlation.feature_two} in the future</MenuItem>
 						</Menu>
 					</CardActions>
 				</Card>
@@ -63,6 +65,50 @@ class NlCorrelation extends Component {
 	handleHideMenuClose = () => {
 		this.setState({ anchorEl: null });
 	};
+
+	handleHideSingleCorrelation = () => {
+		this.handleHideMenuClose();
+		this.props.hideCorrelationFn(this.props.correlation._id);
+		fetch(
+			`${config.profiles[config.activeProfile].server}/correlations/hide`,
+			{
+				method: 'POST',
+				body: JSON.stringify({correlationId: this.props.correlation._id}),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		).then(response => {
+			if (response.ok) {
+				console.log(`correlation hide request is ok`);
+			} else if (response.status == 401){
+				// login
+				alert('password wrong!'); // TODO
+			}
+		});
+	}
+
+	handleHideCorrelationForFeature = feature => {
+		this.handleHideMenuClose();
+		this.props.hideCorrelationFn(null, feature);
+		fetch(
+			`${config.profiles[config.activeProfile].server}/correlations/hide`,
+			{
+				method: 'POST',
+				body: JSON.stringify({feature: feature}),
+				headers: {
+					'Content-Type': 'application/json'
+				}
+			}
+		).then(response => {
+			if (response.ok) {
+				console.log(`correlation hide request for is ok`);
+			} else if (response.status == 401){
+				// login
+				alert('password wrong!'); // TODO
+			}
+		});
+	}
 
 }
 export default NlCorrelation;
