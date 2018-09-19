@@ -4,6 +4,7 @@ import './App.css';
 import TimelineContainer from './TimelineContainer'
 import DescriptiveStatisticsContainer from './DescriptiveStatisticsContainer';
 import LoginView from './LoginView';
+import NlCorrelationsContainer from './NlCorrelationsContainer';
 let base64 = require('base-64');
 
 const config = require('./config.json');
@@ -73,6 +74,7 @@ class App extends Component {
 			  	<div>
 				  <TimelineContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
 				  <DescriptiveStatisticsContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
+					<NlCorrelationsContainer userinfo={this.state.userinfo}/>
 				</div>
 			  ):
 				  (
