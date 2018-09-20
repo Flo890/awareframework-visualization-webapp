@@ -1,10 +1,20 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
 import TimelineContainer from './TimelineContainer'
 import DescriptiveStatisticsContainer from './DescriptiveStatisticsContainer';
 import LoginView from './LoginView';
 import NlCorrelationsContainer from './NlCorrelationsContainer';
+import AppBar from '@material-ui/core/AppBar';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import IconButton from '@material-ui/core/IconButton';
+import MenuIcon from '@material-ui/icons/Menu';
+import AccountCircle from '@material-ui/icons/AccountCircle';
+import MenuItem from '@material-ui/core/MenuItem';
+import Menu from '@material-ui/core/Menu';
+import Badge from '@material-ui/core/Badge';
+import NotificationsIcon from '@material-ui/icons/Notifications';
+
 let base64 = require('base-64');
 
 const config = require('./config.json');
@@ -25,7 +35,8 @@ class App extends Component {
 			password: 'password'
 		},
 		isLoggedIn: undefined,
-		availableFeatures: []
+		availableFeatures: [],
+		anchorEl: null
 	}
 
 	loadAvailableFeatures(){
@@ -58,22 +69,44 @@ class App extends Component {
 
   render() {
 
-
+	  const open = Boolean(this.state.anchorEl);
 
     return (
       <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <h1 className="App-title">Welcome to React</h1>
-        </header>
-        <p className="App-intro">
-          To get started, edit <code>src/App.js</code> and save to reload. Lol
-        </p>
+		  <AppBar position="static">
+			  <Toolbar>
+				  <IconButton className="menuButton" color="inherit" aria-label="Menu">
+					  <MenuIcon />
+				  </IconButton>
+				  <Typography variant="title" color="inherit" className="grow">
+					  Mimuc Fatigue Study
+				  </Typography>
+				  {this.state.isLoggedIn && (
+					  <div>
+						  <Menu
+							  id="menu-appbar"
+							  anchorEl={this.state.anchorEl}
+							  anchorOrigin={{
+								  vertical: 'top',
+								  horizontal: 'right',
+							  }}
+							  transformOrigin={{
+								  vertical: 'top',
+								  horizontal: 'right',
+							  }}
+							  open={open}
+							  onClose={this.handleClose}
+						  >
+						  </Menu>
+					  </div>
+				  )}
+			  </Toolbar>
+		  </AppBar>
 		  { this.state.isLoggedIn ?
 			  (
 			  	<div>
-				  <TimelineContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
-				  <DescriptiveStatisticsContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
+				    <DescriptiveStatisticsContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
+					<TimelineContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
 					<NlCorrelationsContainer userinfo={this.state.userinfo}/>
 				</div>
 			  ):
@@ -81,7 +114,6 @@ class App extends Component {
 				  	<LoginView/>
 				  )
 		  }
-
       </div>
     );
   }

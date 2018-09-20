@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import './TimelineNotes.css';
 
 import TimelineNoteCard from "./TimelineNoteCard";
 
@@ -35,32 +36,6 @@ class TimelineNotes extends Component {
 
 	render(){
 
-		// demo data
-		// let notes = [{
-		// 	note_text: "this is an awesome insight!",
-		// 	timeline_config: {
-		// 		fromDate: 1535046919131,
-		// 		toDate: 1535187482902,
-		// 		selectedFeatures: [
-		// 			{key: "temperature", display_name: "outside temperature"},
-		// 			{key: "ambient_noise_plugin", display_name: "ambient noise (plugin)"},
-		// 			{key: "fatigue_level", display_name: "fatigue level"}
-		// 		]
-		// 	}
-		// },
-		// 	{
-		// 		note_text: "Wow is this tool awesome <3",
-		// 		timeline_config: {
-		// 			fromDate: 1535046919131,
-		// 			toDate: 1535187482902,
-		// 			selectedFeatures: [
-		// 				{key:"linear_accelerometer",display_name:"phone movement"},
-		// 				{key:"fatigue_level",display_name:"fatigue level"}
-		// 			]
-		// 		}
-		// 	}
-		// ];
-
 
 		let notes = this.state.notes;
 
@@ -87,7 +62,7 @@ class TimelineNotes extends Component {
 
 
 		return (
-			<div>
+			<div className="notes_container">
 				{
 					noteForCurrTimelineConfig
 				}
@@ -103,7 +78,7 @@ class TimelineNotes extends Component {
 					<Button type="submit">Save note</Button>
 				</form>
 				<div>
-					<h4>other notes:</h4>
+					<h4>notes on other timeline configurations:</h4>
 					{cards}
 				</div>
 

@@ -1,3 +1,15 @@
+.timeline_container{
+    margin-top:30px;
+}
 .timeline_card {
     margin: 20px;
+}
+table {
+    background-color: #fbfbfd;
+}
+td {
+    padding: 20px;
+}
+.feature_chip {
+    margin:2px;
 }

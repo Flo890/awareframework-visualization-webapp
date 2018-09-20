@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
 import './DescriptiveStatisticsContainer.css';
+import './DescriptiveStatisticsTile.css';
 
-import Card from '@material-ui/core/Card'
-import CardContent from '@material-ui/core/CardContent'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button';
 import Dialog from '@material-ui/core/Dialog';
@@ -15,6 +14,8 @@ import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormLabel from '@material-ui/core/FormLabel';
+import Card from '@material-ui/core/Card'
+import CardContent from '@material-ui/core/CardContent'
 
 import DescriptiveStatisticsLoader from './DescriptiveStatisticsLoader';
 const config = require('./config.json');
@@ -97,13 +98,16 @@ class DescriptiveStatisticsContainer extends Component {
 		console.log('rerendering');
 
 		return (
-			<Card className="descriptive_statistics_card">
-				<CardContent>
-					<Typography variant="headline" component="h2">Descriptive Statistics</Typography>
-				</CardContent>
+			<div className="descr-stats-container">
+				<Typography variant="headline" component="h1">Descriptive Statistics</Typography>
+
 				<DescriptiveStatisticsLoader descrStatConfigs={this.state.descrStatConfigs} userinfo={this.props.userinfo} handleDeleteTile={this.handleDeleteTile.bind(this)}/>
 
-				<Button onClick={this.handleClickDialogOpen} className="add_tile_button">ADD</Button>
+				<Card className="descr_stat_tile_card">
+					<CardContent className="cardcontent">
+						<Button onClick={this.handleClickDialogOpen} className="add_tile_button">ADD +</Button>
+					</CardContent>
+				</Card>
 
 					<Dialog
 						open={this.state.newTileDialog.dialogopen}
@@ -178,7 +182,7 @@ class DescriptiveStatisticsContainer extends Component {
 							</Button>
 						</DialogActions>
 					</Dialog>
-			</Card>
+			</div>
 		)
 	}
 

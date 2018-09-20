@@ -45,8 +45,6 @@ class DescriptiveStatisticsTile extends Component {
 		}
 
 
-
-
 		return (
 			<Card className="descr_stat_tile_card">
 				<CardContent className="cardcontent">

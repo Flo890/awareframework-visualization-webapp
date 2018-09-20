@@ -1,5 +1,8 @@
-.descriptive_statistics_card{
-
+.descr-stats-container{
+    clear: both;
+    display: block;
+    overflow: hidden;
+    margin-top:30px;
 }
 form{
 

@@ -30,7 +30,7 @@ class TimelineLoader extends Component {
 		console.log('TimelineLoader.componentDidUpdate()');
 		if (this.state.renderedUserconfig && JSON.stringify(this.state.renderedUserconfig) !== JSON.stringify(this.props.userconfig)){
 			console.log('and decided to reload data');
-			this.reloadData(this.props.userconfig.fromDate != this.state.renderedUserconfig.fromDate || this.props.userconfig.toDate != this.state.renderedUserconfig.toDate || this.props.userconfig.maxValues != this.state.renderedUserconfig.maxValues); // reload all if from or to date has changed
+			this.reloadData(this.props.userconfig.fromDate != this.state.renderedUserconfig.fromDate || this.props.userconfig.toDate != this.state.renderedUserconfig.toDate || this.props.userconfig.granularityMins != this.state.renderedUserconfig.granularityMins); // reload all if from or to date has changed
 			this.persistConfig();
 		}
 	}
@@ -41,7 +41,7 @@ class TimelineLoader extends Component {
 			return (
 				<TimelineVis
 					datasets={this.state.datasets}
-					queryGranularity={this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate, this.props.userconfig.maxValues)}
+					queryGranularity={this.props.userconfig.granularityMins}
 					timelineContainerRef={this.props.timelineContainerRef}
 					timesegmentNotes={this.state.timesegmentNotes}
 				/>
@@ -80,7 +80,7 @@ class TimelineLoader extends Component {
 
 
 	loadData(featureName, dataKey = 'value', color = 'blue', displayName, displayUnit){
-		let granularity = this.granularityFunction(this.props.userconfig.fromDate, this.props.userconfig.toDate, this.props.userconfig.maxValues);
+		let granularity = this.props.userconfig.granularityMins;
 
 		fetch(
 			`${config.profiles[config.activeProfile].server}/features/getone?feature_name=${featureName}&participant_email=${this.props.userinfo.participantEmail}&granularity_mins=${granularity}&from=${this.props.userconfig.fromDate/1000}&to=${this.props.userconfig.toDate/1000}`,

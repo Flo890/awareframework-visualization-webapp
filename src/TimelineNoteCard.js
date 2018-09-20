@@ -4,21 +4,22 @@ import CardContent from '@material-ui/core/CardContent'
 import CardActions from '@material-ui/core/CardActions'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
+import './TimelineNoteCard.css';
 let moment = require('moment');
 
 class TimelineNoteCard extends Component {
 
 	render() {
 		let featureNames = this.props.note.timeline_config.selectedFeatures.map(aFeature => {return aFeature.display_name}).join(", ");
-		let timelineConfigDescr = `note on ${featureNames} from ${moment.unix(this.props.note.timeline_config.fromDate/1000).format()} to ${moment.unix(this.props.note.timeline_config.toDate/1000).format()}`;
+		let timelineConfigDescr = `note on ${featureNames} from ${moment.unix(this.props.note.timeline_config.fromDate/1000).format('lll')} to ${moment.unix(this.props.note.timeline_config.toDate/1000).format('lll')}`;
 		return (
-			<Card>
+			<Card className="note_card">
 				<CardContent>
-					<Typography color="textSecondary">
-						{timelineConfigDescr}
-					</Typography>
-					<Typography component="p">
+					<Typography variant="subheading">
 						{this.props.note.note_text}
+					</Typography>
+					<Typography variant="caption">
+						{timelineConfigDescr}
 					</Typography>
 				</CardContent>
 				{ this.props.showTimelineForConfigFunction && (

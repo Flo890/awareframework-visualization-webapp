@@ -26,3 +26,11 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.menuButton {
+  marginLeft: -12;
+  marginRight: 20;
+}
+.grow {
+  flexGrow: 1;
+}

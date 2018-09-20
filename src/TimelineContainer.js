@@ -20,12 +20,12 @@ import FormControl from '@material-ui/core/FormControl';
 import InputLabel from '@material-ui/core/InputLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import Button from '@material-ui/core/Button';
-import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField'
 
 const EventEmitter = require('wolfy87-eventemitter');
 let moment = require('moment');
 const config = require('./config.json');
+const granularitySteps = [5,10,15,30,60,60*3,60*24];
 
 class TimelineContainer extends Component {
 
@@ -55,7 +55,7 @@ class TimelineContainer extends Component {
 					{key:"ambient_noise_plugin",display_name:"ambient noise (plugin)"},
 					{key:"fatigue_level",display_name:"fatigue level"}
 				],
-				maxValues: 50
+				granularityMins: 60
 			}
 	}
 
@@ -95,10 +95,10 @@ class TimelineContainer extends Component {
 		}
 
 		return (
-			<div>
+			<div className="timeline_container">
+				<Typography variant="headline" component="h1">Timeline</Typography>
 				<Card className="timeline_card">
 					<CardContent>
-						<Typography variant="headline" component="h2">Timeline</Typography>
 						<TimelineLoader
 							userconfig={this.state.userconfig.timeline}
 							selectedFeatures={this.state.userconfig.timeline.selectedFeatures}
@@ -106,55 +106,93 @@ class TimelineContainer extends Component {
 							timelineContainerRef={this}
 							ref={this.timelineLoader}
 						/>
-						<div className="range_choosers">
-							<DateTimePicker
-								onChange={this.onDateFromChange}
-								value={new Date(this.state.userconfig.timeline.fromDate)}
-							/>
-							<DateTimePicker
-								onChange={this.onDateToChange}
-								value={new Date(this.state.userconfig.timeline.toDate)}
-							/>
-						</div>
-						<div className="feature_chooser">
-							<h3>available features:</h3>
-							{
-								this.props.availableFeatures.map(feature => {
-									let isSelected = false;
-									for(let i=0; i<this.state.userconfig.timeline.selectedFeatures.length; i++){
-										if (this.state.userconfig.timeline.selectedFeatures[i].key == feature.key){
-											isSelected = true;
-											break;
-										}
-									}
-									if (isSelected){
-										// chip for selected feature
-										return (
-											<Chip
-												label={feature.display_name}
-												onDelete={this.handleFeatureUnselect.bind({key:feature.key,realThis: this})}
-												style={{background:colorHash.hex(feature.key)}}
-											/>
-										)
-									} else {
-										// chip for not selected feature
-										return (
-											<Chip
-												label={feature.display_name}
-												clickable
-												onDelete={this.handleFeatureSelect.bind({key:feature.key,realThis: this})}
-												deleteIcon={<AddIcon />}
-											/>
-										)
-									}
+						<table>
+							<tr>
+								<td>
+									<h4>time range</h4>
+								</td>
+								<td>
+									<div className="range_choosers">
+										<p>from <DateTimePicker
+											onChange={this.onDateFromChange}
+											value={new Date(this.state.userconfig.timeline.fromDate)}
+										/>  to <DateTimePicker
+											onChange={this.onDateToChange}
+											value={new Date(this.state.userconfig.timeline.toDate)}
+										/>
+										</p>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<h4>displayed features</h4>
+								</td>
+								<td>
+									<div className="feature_chooser">
 
-								})
-							}
-						</div>
-						<div>
-							<h3>degree of detail:</h3>
-							<Slider onChange={this.handleGranularitySlider.bind(this)} defaultValue={this.state.userconfig.timeline.maxValues}/>
-						</div>
+										{
+											this.props.availableFeatures.map(feature => {
+												let isSelected = false;
+												for(let i=0; i<this.state.userconfig.timeline.selectedFeatures.length; i++){
+													if (this.state.userconfig.timeline.selectedFeatures[i].key == feature.key){
+														isSelected = true;
+														break;
+													}
+												}
+												if (isSelected){
+													// chip for selected feature
+													return (
+														<Chip
+															className="feature_chip"
+															label={feature.display_name}
+															onDelete={this.handleFeatureUnselect.bind({key:feature.key,realThis: this})}
+															style={{background:colorHash.hex(feature.key)}}
+														/>
+													)
+												} else {
+													// chip for not selected feature
+													return (
+														<Chip
+															className="feature_chip"
+															label={feature.display_name}
+															clickable
+															onDelete={this.handleFeatureSelect.bind({key:feature.key,realThis: this})}
+															deleteIcon={<AddIcon />}
+														/>
+													)
+												}
+
+											})
+										}
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td>
+									<h4>data frequency</h4>
+								</td>
+								<td>
+									<div>
+										<Slider
+											onChange={this.handleGranularitySlider.bind(this)}
+											defaultValue={6}
+											min={0}
+											max={granularitySteps.length-1}
+											marks={granularitySteps.reduce(
+												(map,obj,index)=>{
+													map[index] =  obj < 60 ? `${obj}m` : (obj < 1440 ? `${obj/60}h`: `${obj/(24*60)}d`);
+													return map;
+												}
+												,{}
+											)}
+										/>
+									</div>
+								</td>
+							</tr>
+						</table>
+
+
 						<TimelineNotes
 							participantId={this.props.participantId}
 							timelineConfig={this.state.userconfig.timeline}
@@ -277,18 +315,10 @@ class TimelineContainer extends Component {
 	}
 
 	handleGranularitySlider(value) {
-		// throttle events
-		if (this.granularitySliderThrottle) {
-			clearTimeout(this.granularitySliderThrottle);
-		}
-		this.granularitySliderThrottle = setTimeout(()=>{
-			console.log(value);
-			this.granularitySliderThrottle = undefined;
 			this.setState(prevState => {
-				prevState.userconfig.timeline.maxValues = value;
+				prevState.userconfig.timeline.granularityMins = granularitySteps[value];
 				return prevState;
 			});
-		},500);
 	}
 
 	// ------------- timespan dialog ----------------

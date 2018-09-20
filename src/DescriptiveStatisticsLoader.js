@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
-import './DescriptiveStatisticsContainer.css';
+import './DescriptiveStatisticsLoader.css';
 import DescriptiveStatisticsTile from "./DescriptiveStatisticsTile";
+import GridList from '@material-ui/core/GridList';
+import GridListTile from '@material-ui/core/GridListTile';
 
 let moment = require('moment');
 const config = require('./config.json');
@@ -95,12 +97,15 @@ class DescriptiveStatisticsLoader extends Component {
 		return (
 			<div>
 			{this.state.descrStatTiles.map(aDescrStatTile => {
-				return <DescriptiveStatisticsTile
-					key={`descr-tile-${aDescrStatTile.config.accumulator.function}-${aDescrStatTile.featureName}-${aDescrStatTile.config.from}-${aDescrStatTile.config.to}`}
-					descrStatTile={aDescrStatTile}
-					handleDeleteTile={this.props.handleDeleteTile}
-				/>
+				return (
+					<DescriptiveStatisticsTile
+						key={`descr-tile-${aDescrStatTile.config.accumulator.function}-${aDescrStatTile.featureName}-${aDescrStatTile.config.from}-${aDescrStatTile.config.to}`}
+						descrStatTile={aDescrStatTile}
+						handleDeleteTile={this.props.handleDeleteTile}
+					/>
+				);
 			})}
+
 			</div>
 		);
 	}

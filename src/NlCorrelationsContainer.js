@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import './NlCorrelationsContainer.css';
 import NlCorrelation from "./NlCorrelation";
 import Button from '@material-ui/core/Button';
+import Typography from '@material-ui/core/Typography'
 
 const config = require('./config.json');
 
@@ -51,8 +52,8 @@ class NlCorrelationsContainer extends Component {
 			)
 		});
 		return (
-			<div>
-				<h3>Did you know...</h3>
+			<div className="correlations_container">
+				<Typography variant="headline" component="h1">Did you know... ?</Typography>
 				{correlationComponents}
 				<Button onClick={this.handleShowLessRelevantCorrelations.bind(this)}>{this.state.showRelevanceZeroCorrelations ? 'Hide less relevant correlations' : 'Show less relevant correlations'}</Button>
 			</div>
