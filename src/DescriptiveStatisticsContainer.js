@@ -227,7 +227,8 @@ class DescriptiveStatisticsContainer extends Component {
 				from: from ? (from.unix() * 1000) : undefined,
 				to: to ? (to.unix() * 1000) : undefined,
 				dynamicTimerange: dynamicTimerange,
-				accumulator: this.state.newTileDialog.dropdownValueAccM
+				accumulator: this.state.newTileDialog.dropdownValueAccM,
+				displayUnit: this.props.availableFeatures.filter(f => {return f.key == feature})[0].display_unit
 			}]
 		});
 

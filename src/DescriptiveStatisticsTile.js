@@ -50,7 +50,7 @@ class DescriptiveStatisticsTile extends Component {
 				<CardContent className="cardcontent">
 
 						<div className="value_container">
-							<p className="text_value">{this.props.descrStatTile.values.length == 0 ? '-' : Math.round(this.props.descrStatTile.values[0].value*100)/100}</p><p className="text_unit"> {this.props.descrStatTile.unit}</p>
+							<p className="text_value">{this.props.descrStatTile.values.length == 0 ? '-' : Math.round(this.props.descrStatTile.values[0].value*100)/100} {this.props.descrStatTile.config.displayUnit}</p>
 						</div>
 						<div className="label_container">
 							<p className="label">{this.props.descrStatTile.config.accumulator.displayName} {this.props.descrStatTile.featureDisplayName}</p>

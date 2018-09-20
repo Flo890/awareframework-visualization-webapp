@@ -1,8 +1,6 @@
 import React, { Component } from 'react';
 import './DescriptiveStatisticsLoader.css';
 import DescriptiveStatisticsTile from "./DescriptiveStatisticsTile";
-import GridList from '@material-ui/core/GridList';
-import GridListTile from '@material-ui/core/GridListTile';
 
 let moment = require('moment');
 const config = require('./config.json');

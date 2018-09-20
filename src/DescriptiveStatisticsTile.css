@@ -1,11 +1,11 @@
 .descr_stat_tile_card {
-    margin: 10px;
-    width:40%;
+    margin: 2%;
+    width:46%;
     float:left;
     position: relative;
 }
 .text_value{
-    font-size: 4em;
+    font-size: 3em;
     margin:0;
 }
 .text_unit{
@@ -15,13 +15,13 @@
     box-sizing: border-box;
     float:left;
     width:50%;
-    padding:20px;
+    padding:5px;
 }
 .label_container{
     box-sizing: border-box;
     float:right;
     width: 50%;
-    padding:20px;
+    padding:10px;
 }
 .label{
     margin:0;
