@@ -35,7 +35,7 @@ class NlCorrelation extends Component {
 						</Typography>
 					</CardContent>
 					<CardActions>
-						<Button size="small">Learn More</Button>
+						<Button size="small" onClick={this.handleLearnMoreClick.bind(this)}>Learn More</Button>
 						<Button size="small"
 								aria-owns={hideMenuOpen ? 'fade-menu' : null}
 								aria-haspopup="true"
@@ -108,6 +108,10 @@ class NlCorrelation extends Component {
 				alert('password wrong!'); // TODO
 			}
 		});
+	}
+
+	handleLearnMoreClick() {
+		window.dispatchEvent(new CustomEvent('correlation-learnmore-clicked', {detail:this.props.correlation}));
 	}
 
 }

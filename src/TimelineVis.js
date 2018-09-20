@@ -196,6 +196,7 @@ class TimelineVis extends Component {
 		if(useBars) {
 				bars.push(
 					<BarGroup
+						key={`bargroup`}
 						top={margin.top}
 						data={mergedBarData}
 						keys={normalizedBarKeys}

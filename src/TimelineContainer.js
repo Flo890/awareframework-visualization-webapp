@@ -23,6 +23,7 @@ import Button from '@material-ui/core/Button';
 import Input from '@material-ui/core/Input';
 import TextField from '@material-ui/core/TextField'
 
+const EventEmitter = require('wolfy87-eventemitter');
 let moment = require('moment');
 const config = require('./config.json');
 
@@ -56,6 +57,10 @@ class TimelineContainer extends Component {
 				],
 				maxValues: 50
 			}
+	}
+
+	componentDidMount(){
+		window.addEventListener('correlation-learnmore-clicked', this.handleCorrelationLearnMoreEvent.bind(this));
 	}
 
 	onDateFromChange = date => {
@@ -337,6 +342,25 @@ class TimelineContainer extends Component {
 		});
 		this.timelineLoader.current.createNewTimesegmentNote(this.state.timesegmentNoteDialog);
 	};
+
+	handleCorrelationLearnMoreEvent(e){
+		let correlation = e.detail;
+
+		let newTimelineConfig = {
+			fromDate: correlation.from,
+			toDate: correlation.to,
+			selectedFeatures: [
+				...this.props.availableFeatures.filter(feature => feature.key == correlation.feature_one),
+				...this.props.availableFeatures.filter(feature => feature.key == correlation.feature_two)
+			],
+			maxValues: this.defaultUserconfig.timeline.maxValues
+		};
+
+		this.setState(prevState => {
+			prevState.userconfig.timeline = newTimelineConfig;
+			return prevState;
+		});
+	}
 
 }
 

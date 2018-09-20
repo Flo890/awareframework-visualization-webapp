@@ -1,13 +1,15 @@
 import React, { Component } from 'react';
 import './NlCorrelationsContainer.css';
 import NlCorrelation from "./NlCorrelation";
+import Button from '@material-ui/core/Button';
 
 const config = require('./config.json');
 
 class NlCorrelationsContainer extends Component {
 
 	state = {
-		correlations: []
+		correlations: [],
+		showRelevanceZeroCorrelations: false
 	}
 
 	constructor(props){
@@ -39,9 +41,10 @@ class NlCorrelationsContainer extends Component {
 	}
 
 	render() {
-		let correlationComponents = this.state.correlations.map(correlation => {
+		let correlationComponents = this.state.correlations.filter(correlation => {return correlation.relevance_score > 0 || this.state.showRelevanceZeroCorrelations}).map(correlation => {
 			return (
 				<NlCorrelation
+					key={`corr-${correlation.feature_one}-${correlation.feature_two}-${correlation.from}-${correlation.to}`}
 					correlation={correlation}
 					hideCorrelationFn={this.hideCorrelations.bind(this)}
 				/>
@@ -51,6 +54,7 @@ class NlCorrelationsContainer extends Component {
 			<div>
 				<h3>Did you know...</h3>
 				{correlationComponents}
+				<Button onClick={this.handleShowLessRelevantCorrelations.bind(this)}>{this.state.showRelevanceZeroCorrelations ? 'Hide less relevant correlations' : 'Show less relevant correlations'}</Button>
 			</div>
 		);
 	}
@@ -71,7 +75,12 @@ class NlCorrelationsContainer extends Component {
 				});
 				return prevState;
 			});
+	}
 
+	handleShowLessRelevantCorrelations(){
+		this.setState({
+			showRelevanceZeroCorrelations: !this.state.showRelevanceZeroCorrelations
+		});
 	}
 
 }

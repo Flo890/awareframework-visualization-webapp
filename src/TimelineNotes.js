@@ -67,7 +67,10 @@ class TimelineNotes extends Component {
 		let cards = notes
 			.filter(aNote => {return !(JSON.stringify(aNote.timeline_config) == JSON.stringify(this.props.timelineConfig))})  // filter out the currently-viewed note
 			.map(aNote => {
-			return <TimelineNoteCard note={aNote} showTimelineForConfigFunction={this.props.showTimelineForConfigFunction}/>
+			return <TimelineNoteCard
+				key={`note-${aNote.timeline_config.fromDate}-${aNote.timeline_config.toDate}-${aNote.note_text}`}
+				note={aNote}
+				showTimelineForConfigFunction={this.props.showTimelineForConfigFunction}/>
 		});
 
 		let noteForCurrTimelineConfig = undefined;
