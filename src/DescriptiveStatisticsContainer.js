@@ -46,6 +46,25 @@ class DescriptiveStatisticsContainer extends Component {
 		}
 	}
 
+
+	defaultLabStudyConfigs = [
+		{
+			featureName: "fatigue_level",
+			from:1536444000000,
+			to:1537048799000
+			,dynamicTimerange:"lastweek",
+			accumulator:{function:"avg",displayName:"average"}
+		},
+		{
+			featureName:"phone_usage",
+			from:1536444000000,
+			to:1537048799000,
+			dynamicTimerange:"lastweek",
+			accumulator:{function:"avg",displayName:"average"},
+			displayUnit:"minutes"
+		}
+	];
+
 	defaultConfigs = [
 		{
 			featureName: 'fatigue_level',
@@ -81,7 +100,7 @@ class DescriptiveStatisticsContainer extends Component {
 						});
 					} else {
 						this.setState({
-							descrStatConfigs: this.defaultConfigs
+							descrStatConfigs: this.defaultLabStudyConfigs
 						});
 					}
 

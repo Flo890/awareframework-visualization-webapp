@@ -46,6 +46,20 @@ class TimelineContainer extends Component {
 		this.timelineLoader = React.createRef();
 	}
 
+	defaultLabStudyUserconfig = {
+		timeline: {
+			fromDate: 1536530400000,
+			toDate: 1536948000000,
+			selectedFeatures: [
+				{key: "fatigue_level", display_name: "fatigue level"},
+				{key: "phone_usage", display_name: "phone usage", display_unit: "minutes"},
+				{key: "calls_count", display_name: "amount of calls"},
+				{key: "temperature", display_name: "outside temperature", display_unit: "°C"}
+			],
+			granularityMins: 1440
+		}
+	}
+
 	defaultUserconfig = {
 			timeline: {
 				fromDate: moment().subtract(1,'days').startOf('day').unix()*1000,
@@ -302,7 +316,7 @@ class TimelineContainer extends Component {
 						});
 					} else {
 						this.setState({
-							userconfig: this.defaultUserconfig
+							userconfig: this.defaultLabStudyUserconfig
 						});
 					}
 				}).catch(jsonError => {
@@ -383,7 +397,7 @@ class TimelineContainer extends Component {
 				...this.props.availableFeatures.filter(feature => feature.key == correlation.feature_one),
 				...this.props.availableFeatures.filter(feature => feature.key == correlation.feature_two)
 			],
-			maxValues: this.defaultUserconfig.timeline.maxValues
+			granularityMins: this.defaultLabStudyUserconfig.timeline.granularityMins
 		};
 
 		this.setState(prevState => {
