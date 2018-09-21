@@ -21,8 +21,10 @@ import InputLabel from '@material-ui/core/InputLabel';
 import FormLabel from '@material-ui/core/FormLabel';
 import Button from '@material-ui/core/Button';
 import TextField from '@material-ui/core/TextField'
+import HelpOutlineIcon from '@material-ui/icons/HelpOutline';
 
-const EventEmitter = require('wolfy87-eventemitter');
+import fatigueScaleImg from './fatigue-scale.png';
+
 let moment = require('moment');
 const config = require('./config.json');
 const granularitySteps = [5,10,15,30,60,60*3,60*24];
@@ -41,7 +43,8 @@ class TimelineContainer extends Component {
 				dateFrom: undefined,
 				dateTo: undefined,
 				noteText: ''
-			}
+			},
+			questionDialogOpen: false
 		}
 		this.timelineLoader = React.createRef();
 	}
@@ -159,9 +162,11 @@ class TimelineContainer extends Component {
 													return (
 														<Chip
 															className="feature_chip"
-															label={feature.display_name}
+															label={`${feature.display_name} ${feature.key == 'fatigue_level' ? '(?)':''}`}
 															onDelete={this.handleFeatureUnselect.bind({key:feature.key,realThis: this})}
 															style={{background:colorHash.hex(feature.key)}}
+															icon={<HelpOutlineIcon />}
+															onClick={()=>{this.handleQuestionIconClick()}}
 														/>
 													)
 												} else {
@@ -169,10 +174,11 @@ class TimelineContainer extends Component {
 													return (
 														<Chip
 															className="feature_chip"
-															label={feature.display_name}
+															label={`${feature.display_name} ${feature.key == 'fatigue_level' ? '(?)':''}`}
 															clickable
 															onDelete={this.handleFeatureSelect.bind({key:feature.key,realThis: this})}
 															deleteIcon={<AddIcon />}
+															onClick={()=>{this.handleQuestionIconClick()}}
 														/>
 													)
 												}
@@ -225,7 +231,7 @@ class TimelineContainer extends Component {
 					<DialogTitle id="form-dialog-title">Add note for time segment</DialogTitle>
 					<DialogContent>
 						<DialogContentText>
-							TODO a text
+							This note will be visible in the timeline
 						</DialogContentText>
 						<form autoComplete="off">
 							<FormControl className="dropdown_accm">
@@ -262,6 +268,26 @@ class TimelineContainer extends Component {
 						</Button>
 					</DialogActions>
 				</Dialog>
+
+					<Dialog
+						open={this.state.questionDialogOpen}
+						onClose={this.handleQuestionDialogClose.bind(this)}
+						aria-labelledby="form-dialog-title"
+					>
+						<DialogTitle id="form-dialog-title">Fatigue Level</DialogTitle>
+						<DialogContent>
+							<DialogContentText>
+								Your mental fatigue is presented by the USAFSAM Mental Fatigue Scale:
+							</DialogContentText>
+							<figure><img src={fatigueScaleImg} /></figure>
+						</DialogContent>
+						<DialogActions>
+							<Button onClick={this.handleQuestionDialogClose.bind(this)} color="primary">
+								Close
+							</Button>
+						</DialogActions>
+					</Dialog>
+
 			</div>
 		);
 	}
@@ -403,6 +429,18 @@ class TimelineContainer extends Component {
 		this.setState(prevState => {
 			prevState.userconfig.timeline = newTimelineConfig;
 			return prevState;
+		});
+	}
+
+	handleQuestionIconClick(){
+		this.setState({
+			questionDialogOpen: true
+		});
+	}
+
+	handleQuestionDialogClose(){
+		this.setState({
+			questionDialogOpen: false
 		});
 	}
 

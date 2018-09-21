@@ -97,7 +97,7 @@ class DescriptiveStatisticsLoader extends Component {
 			{this.state.descrStatTiles.map(aDescrStatTile => {
 				return (
 					<DescriptiveStatisticsTile
-						key={`descr-tile-${aDescrStatTile.config.accumulator.function}-${aDescrStatTile.featureName}-${aDescrStatTile.config.from}-${aDescrStatTile.config.to}`}
+						key={`descr-tile-${aDescrStatTile.config.accumulator.function}-${aDescrStatTile.config.featureName}-${aDescrStatTile.config.from}-${aDescrStatTile.config.to}`}
 						descrStatTile={aDescrStatTile}
 						handleDeleteTile={this.props.handleDeleteTile}
 					/>
