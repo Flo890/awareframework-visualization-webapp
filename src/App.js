@@ -29,9 +29,9 @@ class App extends Component {
 	}
 
 	state = {
-		userinfo: {
-			participantId: 3,
-			participantEmail: 'Florian.Bemmann@campus.lmu.de',
+		userinfo: { // invalid data, to get a 401 response initially, which leads to the LoginView
+			participantId: 0,
+			participantEmail: 'notset',
 			password: 'password'
 		},
 		isLoggedIn: undefined,
@@ -111,11 +111,21 @@ class App extends Component {
 				</div>
 			  ):
 				  (
-				  	<LoginView/>
+				  	<LoginView setUserinfoFn={this.setUserinfoFn.bind(this)}/>
 				  )
 		  }
       </div>
     );
+  }
+
+  setUserinfoFn(participantId, email, password){
+		this.setState({
+			userinfo: {
+				participantId: participantId,
+				participantEmail: email,
+				password: password
+			}
+		});
   }
 
 }
