@@ -34,3 +34,7 @@
 .grow {
   flexGrow: 1;
 }
+.logout_button{
+  position: absolute !important;
+  right: 20px;
+}

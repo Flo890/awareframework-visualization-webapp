@@ -111,6 +111,7 @@ class App extends Component {
 						  </Menu>
 					  </div>
 				  )}
+				  <Button className="logout_button" color="inherit" onClick={this.logout.bind(this)}>Logout</Button>
 			  </Toolbar>
 		  </AppBar>
 		  { this.state.isLoggedIn && this.state.userinfo.participantEmail != 'notset' ?
@@ -122,7 +123,7 @@ class App extends Component {
 				</div>
 			  ):
 				  (
-				  	<LoginView setUserinfoFn={this.setUserinfoFn.bind(this)}/>
+					  []/*<LoginView setUserinfoFn={this.setUserinfoFn.bind(this)}/>*/
 				  )
 		  }
 		  { this.state.userinfo.participantEmail == 'notset' && (<Dialog
@@ -187,6 +188,23 @@ class App extends Component {
 		this.state.emailFormText = newText
 	}
 
+	logout(){
+		fetch(
+			`${config.profiles[config.activeProfile].server}/auth/logout`,
+			{
+				method: 'GET'
+			}
+		).then(response => {
+			if (response.ok) {
+				console.log(`logout request is ok`);
+				this.setState({
+					isLoggedIn: false
+				});
+			}
+		}).catch(error => {
+			console.error('error on logout requests',error);
+		});
+	}
 
 
 }
