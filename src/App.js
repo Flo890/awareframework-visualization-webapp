@@ -9,13 +9,15 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import IconButton from '@material-ui/core/IconButton';
 import MenuIcon from '@material-ui/icons/Menu';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MenuItem from '@material-ui/core/MenuItem';
 import Menu from '@material-ui/core/Menu';
-import Badge from '@material-ui/core/Badge';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+import Dialog from '@material-ui/core/Dialog';
+import DialogActions from '@material-ui/core/DialogActions';
+import DialogContent from '@material-ui/core/DialogContent';
+import DialogContentText from '@material-ui/core/DialogContentText';
+import DialogTitle from '@material-ui/core/DialogTitle';
+import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField'
 
-let base64 = require('base-64');
 
 const config = require('./config.json');
 
@@ -36,7 +38,16 @@ class App extends Component {
 		},
 		isLoggedIn: undefined,
 		availableFeatures: [],
-		anchorEl: null
+		anchorEl: null,
+		emailFormOpen: false
+	}
+
+	componentDidMount(){
+		if(this.state.userinfo.participantEmail == 'notset'){
+			this.setState({
+				emailFormOpen: true
+			});
+		}
 	}
 
 	loadAvailableFeatures(){
@@ -102,7 +113,7 @@ class App extends Component {
 				  )}
 			  </Toolbar>
 		  </AppBar>
-		  { this.state.isLoggedIn ?
+		  { this.state.isLoggedIn && this.state.userinfo.participantEmail != 'notset' ?
 			  (
 			  	<div>
 				    <DescriptiveStatisticsContainer userinfo={this.state.userinfo} availableFeatures={this.state.availableFeatures}/>
@@ -114,6 +125,35 @@ class App extends Component {
 				  	<LoginView setUserinfoFn={this.setUserinfoFn.bind(this)}/>
 				  )
 		  }
+		  { this.state.userinfo.participantEmail == 'notset' && (<Dialog
+			  open={this.state.emailFormOpen}
+			  onClose={this.handleEmailFormClose}
+			  aria-labelledby="form-dialog-title"
+		  >
+			  <DialogTitle id="form-dialog-title">E-Mail</DialogTitle>
+			  <DialogContent>
+				  <DialogContentText>
+					  AWARE and RescueTime data is stored anonymously on the server. To connect it to the fatigue data, please enter your E-Mail address
+				  </DialogContentText>
+				  <TextField
+					  autoFocus
+					  margin="dense"
+					  id="name"
+					  label="Email Address"
+					  type="email"
+					  fullWidth
+					  onChange={this.emailFormTextChange.bind(this)}
+				  />
+			  </DialogContent>
+			  <DialogActions>
+				  <Button onClick={this.handleEmailFormClose.bind(this)} color="primary">
+					  Cancel
+				  </Button>
+				  <Button onClick={this.handleCloseSubmit.bind(this)} color="primary">
+					  Submit
+				  </Button>
+			  </DialogActions>
+		  </Dialog>)}
       </div>
     );
   }
@@ -127,6 +167,27 @@ class App extends Component {
 			}
 		});
   }
+
+	handleEmailFormClose(){
+		this.setState({
+			emailFormOpen: false
+		});
+	}
+
+	handleCloseSubmit(){
+		this.handleEmailFormClose();
+		this.setState(prevState => {
+			prevState.userinfo.participantEmail = prevState.emailFormText;
+			return prevState;
+		});
+	}
+
+	emailFormTextChange(event){
+		let newText = event.target.value;
+		this.state.emailFormText = newText
+	}
+
+
 
 }
 
