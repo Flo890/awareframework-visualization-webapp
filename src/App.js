@@ -39,7 +39,8 @@ class App extends Component {
 		isLoggedIn: undefined,
 		availableFeatures: [],
 		anchorEl: null,
-		emailFormOpen: false
+		emailFormOpen: false,
+		loggedScrolls: []
 	}
 
 	componentDidMount(){
@@ -48,6 +49,18 @@ class App extends Component {
 				emailFormOpen: true
 			});
 		}
+
+		// log scrolls
+		window.onscroll = event => {
+			this.setState(prevState => {
+				prevState.loggedScrolls.push({
+					eventTimestamp: event.timestamp,
+					pageYOffset: window.pageYOffset,
+					timestamp: new Date().getTime()
+				});
+				return prevState;
+			});
+		};
 	}
 
 	loadAvailableFeatures(){
@@ -86,7 +99,7 @@ class App extends Component {
       <div className="App">
 		  <AppBar position="static">
 			  <Toolbar>
-				  <IconButton className="menuButton" color="inherit" aria-label="Menu">
+				  <IconButton className="menuButton" color="inherit" aria-label="Menu" onClick={e => {console.log(JSON.stringify(this.state.loggedScrolls))}}>
 					  <MenuIcon />
 				  </IconButton>
 				  <Typography variant="title" color="inherit" className="grow">
