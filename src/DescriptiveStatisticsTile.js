@@ -63,7 +63,7 @@ class DescriptiveStatisticsTile extends Component {
 			<Card className="descr_stat_tile_card">
 				<CardContent className="cardcontent">
 						<div className="value_container">
-							<p className="text_value">{this.props.descrStatTile.values.length == 0 ? '-' : Math.round(this.props.descrStatTile.values[0].value*100)/100} {this.props.descrStatTile.config.displayUnit}</p>
+							<p className="text_value">{this.props.descrStatTile.values.length == 0 || this.props.descrStatTile.values[0].value == '-' ? '-' : Math.round(this.props.descrStatTile.values[0].value*100)/100} {this.props.descrStatTile.config.displayUnit}</p>
 							{this.props.descrStatTile.config.featureName == 'fatigue_level' && (<HelpOutlineIcon onClick={()=>{this.handleQuestionIconClick(this.props.descrStatTile.config)}}/>)}
 						</div>
 						<div className="label_container">
